@@ -23,7 +23,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "mongodb": "^3.6.2",
-    "mongoose": "^5.10.10",
+    "mongoose": "^5.10.11",
     "ngcsgroups": "git+https://github.com/lstumme/ngcsgroups.git",
     "ngcsusers": "git+https://github.com/lstumme/ngcsusers.git"
   },
