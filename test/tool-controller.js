@@ -102,6 +102,102 @@ describe('Tool Controller', function () {
     });
 
     describe('#deleteTool function', function () {
+        beforeEach(function () {
+            sinon.stub(toolServices, 'deleteTool');
+        });
+
+        afterEach(function () {
+            toolServices.deleteTool.restore();
+        })
+
+        it('should throw an Error if toolId is not specified', function (done) {
+            const req = {
+                body: {}
+            };
+            toolController.deleteTool(req, {}, () => { })
+                .then(response => {
+                    assert.fail('deleteTool Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                })
+
+        });
+
+        it('should return an object if tool deletion succeed', function (done) {
+            const req = {
+                body: { toolId: 'abcd' }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            toolServices.deleteTool.returns(new Promise((resolve, reject) => {
+                resolve({ toolId: 'abcd', members: ['User1', 'User2'] });
+            }));
+
+            toolController.deleteTool(req, res, () => { })
+                .then(result => {
+                    expect(res).to.have.property('statusCode', 201);
+                    expect(res.jsonObject).to.have.property('toolId', 'abcd');
+                    expect(res.jsonObject).to.have.property('members');
+                    expect(res.jsonObject.members).to.eql(['User1', 'User2']);
+                    done();
+                })
+
+        });
+
+        it('should call next(err) adding default statusCode if not specified', function (done) {
+            const req = {
+                body: { toolId: 'abcd' }
+            }
+
+            toolServices.deleteTool.returns(new Promise((resolve, reject) => {
+                reject(new Error('tool Service error'));
+            }));
+
+            let error = null;
+            const next = (err) => {
+                error = err;
+            };
+            toolController.deleteTool(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 500);
+                done();
+            });
+        });
+
+        it('should call next(err) keeping specified statusCode', function (done) {
+            const req = {
+                body: { toolId: 'abcd' }
+            }
+
+            toolServices.deleteTool.returns(new Promise((resolve, reject) => {
+                const error = new Error('tool Service error');
+                error.statusCode = 400;
+                reject(error);
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            }
+            toolController.deleteTool(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 400);
+                done();
+            });
+        });
+
 
     });
     describe('#updateToolInformations function', function () {

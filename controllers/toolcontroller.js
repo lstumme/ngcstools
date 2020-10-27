@@ -1,4 +1,4 @@
-const toolservices = require('../services/toolservices.js');
+const toolServices = require('../services/toolservices.js');
 
 exports.createTool = async (req, res, next) => {
     const name = req.body.name;
@@ -7,7 +7,7 @@ exports.createTool = async (req, res, next) => {
         error.statusCode = 400;
         throw error;
     }
-    return toolservices.createTool({ name })
+    return toolServices.createTool({ name })
         .then(response => {
             res.status(201).json({ ...response });
             return response;
@@ -21,6 +21,23 @@ exports.createTool = async (req, res, next) => {
 };
 
 exports.deleteTool = async (req, res, next) => {
+    const toolId = req.body.toolId;
+    if (!toolId) {
+        const error = new Error('Bad arguments');
+        error.statusCode = 400;
+        throw error;
+    }
+    return toolServices.deleteTool({ toolId })
+        .then(response => {
+            res.status(201).json({ ...response });
+            return response;
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 
 };
 
