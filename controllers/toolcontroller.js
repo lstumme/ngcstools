@@ -146,6 +146,27 @@ exports.deleteToolVersion = async (req, res, next) => {
         });
 };
 
+exports.updateToolVersionInformations = async (req, res, next) => {
+    const toolVersionId = req.body.toolVersionId;
+    const location = req.body.location;
+    if (!toolVersionId || !location) {
+        const error = new Error('Bad arguments');
+        error.statusCode = 400;
+        throw error;
+    }
+    return toolServices.updateToolVersionInformations({ toolVersionId, location })
+        .then(response => {
+            res.status(200).json({ ...response });
+            return response;
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
+};
+
 exports.getToolVersion = async (req, res, next) => {
     const toolVersionId = req.body.toolVersionId;
     if (!toolVersionId) {

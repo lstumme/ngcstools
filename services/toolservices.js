@@ -30,6 +30,9 @@ exports.createToolVersion = () => {
 exports.deleteToolVersion = () => {
 
 };
+exports.updateToolVersionInformations = () => {
+
+};
 exports.getToolVersion = () => {
 
 };
