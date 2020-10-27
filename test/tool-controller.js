@@ -758,9 +758,104 @@ describe('Tool Controller', function () {
 
 
     });
-    describe('#getToolVersion function', function () {
 
+    describe('#getToolVersion function', function () {
+        beforeEach(function () {
+            sinon.stub(toolServices, 'getToolVersion');
+        });
+
+        afterEach(function () {
+            toolServices.getToolVersion.restore();
+        });
+
+        it('should throw an error if no toolVersionId specified', function (done) {
+            const req = {
+                body: {
+                }
+            }
+            toolController.getToolVersion(req, {}, () => { })
+                .then(response => {
+                    assert.fail('Test process Error');
+                    done();
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                });
+        });
+
+        it('should return an object if request succeed', function (done) {
+            const req = {
+                body: {
+                    toolVersionId: 'abc',
+                }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+            toolServices.getToolVersion.returns(new Promise((resolve, reject) => {
+                resolve({ toolVersionId: 'abc' });
+            }));
+
+            toolController.getToolVersion(req, res, () => { }).then(result => {
+                expect(res).to.have.property('statusCode', 200);
+                expect(res.jsonObject).to.have.property('toolVersionId', 'abc');
+                done();
+            });
+        });
+
+        it('should call next(err) adding default statusCode if not specified', function (done) {
+            const req = {
+                body: {
+                    toolVersionId: 'abc',
+                }
+            }
+            toolServices.getToolVersion.returns(new Promise((resolve, reject) => {
+                throw new Error('Undefined Error');
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            };
+            toolController.getToolVersion(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 500);
+                done();
+            });
+        });
+
+        it('should call next(err) keeping specified statusCode', function (done) {
+            const req = {
+                body: {
+                    toolVersionId: 'abc',
+                }
+            }
+            toolServices.getToolVersion.returns(new Promise((resolve, reject) => {
+                const error = new Error('Udefined Error');
+                error.statusCode = 400;
+                throw error;
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            }
+            toolController.getToolVersion(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 400);
+                done();
+            });
+        });
     });
+
     describe('#getToolVersions function', function () {
 
     });

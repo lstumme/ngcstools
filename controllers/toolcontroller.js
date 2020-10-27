@@ -147,8 +147,26 @@ exports.deleteToolVersion = async (req, res, next) => {
 };
 
 exports.getToolVersion = async (req, res, next) => {
+    const toolVersionId = req.body.toolVersionId;
+    if (!toolVersionId) {
+        const error = new Error('Bad arguments.');
+        error.statusCode = 400;
+        throw error;
+    }
 
+    return toolServices.getToolVersion({ toolVersionId })
+        .then(response => {
+            res.status(200).json({ ...response });
+            return response;
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
+
 exports.getToolVersions = async (req, res, next) => {
 
 };
