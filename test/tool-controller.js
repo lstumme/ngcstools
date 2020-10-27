@@ -235,7 +235,7 @@ describe('Tool Controller', function () {
             }
             toolController.updateToolInformations(req, {}, () => { })
                 .then(response => {
-                    expect(true).to.be.false;
+                    assert.fail('updateToolInformations error');
                     done();
                 })
                 .catch(err => {
@@ -540,7 +540,7 @@ describe('Tool Controller', function () {
         });
 
     });
-    
+
     describe('#createToolVersion function', function () {
 
     });
