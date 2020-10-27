@@ -168,7 +168,26 @@ exports.getToolVersion = async (req, res, next) => {
 };
 
 exports.getToolVersions = async (req, res, next) => {
+    const toolId = req.body.toolId;
+    const page = req.body.page;
+    const perPage = req.body.perPage;
+    if (!toolId || !page || !perPage) {
+        const error = new Error('Bad arguments.');
+        error.statusCode = 400;
+        throw error;
+    }
 
+    return toolServices.getToolVersions({ toolId, page, perPage })
+        .then(response => {
+            res.status(200).json(response);
+            return response;
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 
