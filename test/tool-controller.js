@@ -143,15 +143,15 @@ describe('Tool Controller', function () {
             };
 
             toolServices.deleteTool.returns(new Promise((resolve, reject) => {
-                resolve({ toolId: 'abcd', members: ['User1', 'User2'] });
+                resolve({ toolId: 'abcd', name: 'toolname', vendor: 'vendor' });
             }));
 
             toolController.deleteTool(req, res, () => { })
                 .then(result => {
                     expect(res).to.have.property('statusCode', 201);
                     expect(res.jsonObject).to.have.property('toolId', 'abcd');
-                    expect(res.jsonObject).to.have.property('members');
-                    expect(res.jsonObject.members).to.eql(['User1', 'User2']);
+                    expect(res.jsonObject).to.have.property('name', 'toolname');
+                    expect(res.jsonObject).to.have.property('vendor', 'vendor');
                     done();
                 })
 
@@ -200,7 +200,123 @@ describe('Tool Controller', function () {
 
 
     });
+
     describe('#updateToolInformations function', function () {
+        beforeEach(function () {
+            sinon.stub(toolServices, 'updateToolInformations');
+        });
+
+        afterEach(function () {
+            toolServices.updateToolInformations.restore();
+        });
+
+        it('should throw an error if no toolId specified', function (done) {
+            const req = {
+                body: {
+                    vendor: 'vendor',
+                }
+            }
+            toolController.updateToolInformations(req, {}, () => { })
+                .then(response => {
+                    assert.fail('deleteTool error');
+                    done();
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                });
+        });
+
+        it('should throw an error if no vendor parameter specified', function (done) {
+            const req = {
+                body: {
+                    toolId: 'abc'
+                }
+            }
+            toolController.updateToolInformations(req, {}, () => { })
+                .then(response => {
+                    expect(true).to.be.false;
+                    done();
+                })
+                .catch(err => {
+                    expect(err).to.be.an('error').to.have.property('statusCode', 400);
+                    done();
+                });
+        });
+
+        it('should return an object if update succeed', function (done) {
+            const req = {
+                body: {
+                    toolId: 'abc',
+                    vendor: 'vendor',
+                }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+            toolServices.updateToolInformations.returns(new Promise((resolve, reject) => {
+                resolve({ toolId: 'abc' });
+            }));
+
+            toolController.updateToolInformations(req, res, () => { }).then(result => {
+                expect(res).to.have.property('statusCode', 200);
+                expect(res.jsonObject).to.have.property('toolId', 'abc');
+                done();
+            });
+        });
+
+        it('should call next(err) adding default statusCode if not specified', function (done) {
+            const req = {
+                body: {
+                    toolId: 'abc',
+                    vendor: 'vendor',
+                }
+            }
+            toolServices.updateToolInformations.returns(new Promise((resolve, reject) => {
+                throw new Error('Undefined Error');
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            };
+            toolController.updateToolInformations(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 500);
+                done();
+            });
+        });
+
+        it('should call next(err) keeping specified statusCode', function (done) {
+            const req = {
+                body: {
+                    toolId: 'abc',
+                    vendor: 'vendor',
+                }
+            }
+            toolServices.updateToolInformations.returns(new Promise((resolve, reject) => {
+                const error = new Error('Udefined Error');
+                error.statusCode = 400;
+                throw error;
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            }
+            toolController.updateToolInformations(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 400);
+                done();
+            });
+        });
 
     });
     describe('#getTool function', function () {

@@ -42,7 +42,24 @@ exports.deleteTool = async (req, res, next) => {
 };
 
 exports.updateToolInformations = async (req, res, next) => {
-
+    const toolId = req.body.toolId;
+    const vendor = req.body.vendor;
+    if (!toolId || !vendor) {
+        const error = new Error('Bad arguments');
+        error.statusCode = 400;
+        throw error;
+    }
+    return toolServices.updateToolInformations({ toolId, vendor })
+        .then(response => {
+            res.status(200).json({ ...response });
+            return response;
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.getTool = async (req, res, next) => {
