@@ -542,6 +542,122 @@ describe('Tool Controller', function () {
     });
 
     describe('#createToolVersion function', function () {
+        beforeEach(function () {
+            sinon.stub(toolServices, 'createToolVersion');
+        })
+
+        afterEach(function () {
+            toolServices.createToolVersion.restore();
+        });
+
+        it('should throw an Error if toolId is not specified', function (done) {
+            const req = {
+                body: { version: '1.0.0' }
+            };
+            toolController.createToolVersion(req, {}, () => { })
+                .then(response => {
+                    assert.fail('createToolVersion Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                })
+        });
+
+        it('should throw an Error if version is not specified', function (done) {
+            const req = {
+                body: { toolId: 'toolId' }
+            };
+            toolController.createToolVersion(req, {}, () => { })
+                .then(response => {
+                    assert.fail('createToolVersion Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                })
+        });
+
+        it('should return an object if tool version creation succeed', function (done) {
+            const req = {
+                body: {
+                    toolId: 'toolId',
+                    version: '1.0.0'
+                }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            toolServices.createToolVersion.returns(new Promise((resolve, reject) => {
+                resolve({ toolVersionId: 'abcd', toolId: 'toolId', version: 'version' });
+            }));
+
+            toolController.createToolVersion(req, res, () => { })
+                .then(result => {
+                    expect(res).to.have.property('statusCode', 201);
+                    expect(res.jsonObject).to.have.property('toolVersionId', 'abcd');
+                    expect(res.jsonObject).to.have.property('toolId', 'toolId');
+                    expect(res.jsonObject).to.have.property('version', 'version');
+                    done();
+                })
+        });
+
+        it('should call next(err) adding default statusCode if not specified', function (done) {
+            const req = {
+                body: {
+                    toolId: 'toolId',
+                    version: '1.0.0'
+                }
+            }
+
+            toolServices.createToolVersion.returns(new Promise((resolve, reject) => {
+                reject(new Error('tool Service error'));
+            }));
+
+            let error = null;
+            const next = (err) => {
+                error = err;
+            };
+            toolController.createToolVersion(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 500);
+                done();
+            });
+        });
+
+        it('should call next(err) keeping specified statusCode', function (done) {
+            const req = {
+                body: {
+                    toolId: 'toolId',
+                    version: '1.0.0'
+                }
+            }
+
+            toolServices.createToolVersion.returns(new Promise((resolve, reject) => {
+                const error = new Error('tool Service error');
+                error.statusCode = 400;
+                reject(error);
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            }
+            toolController.createToolVersion(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 400);
+                done();
+            });
+        });
 
     });
     describe('#deleteToolVersion function', function () {
