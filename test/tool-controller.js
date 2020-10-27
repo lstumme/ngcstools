@@ -660,7 +660,102 @@ describe('Tool Controller', function () {
         });
 
     });
+
     describe('#deleteToolVersion function', function () {
+        beforeEach(function () {
+            sinon.stub(toolServices, 'deleteToolVersion');
+        });
+
+        afterEach(function () {
+            toolServices.deleteToolVersion.restore();
+        })
+
+        it('should throw an Error if toolVersionId is not specified', function (done) {
+            const req = {
+                body: {}
+            };
+            toolController.deleteToolVersion(req, {}, () => { })
+                .then(response => {
+                    assert.fail('deleteTool Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                })
+
+        });
+
+        it('should return an object if tool version deletion succeed', function (done) {
+            const req = {
+                body: { toolVersionId: 'abcd' }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            toolServices.deleteToolVersion.returns(new Promise((resolve, reject) => {
+                resolve({ toolVersionId: 'abcd' });
+            }));
+
+            toolController.deleteToolVersion(req, res, () => { })
+                .then(result => {
+                    expect(res).to.have.property('statusCode', 201);
+                    expect(res.jsonObject).to.have.property('toolVersionId', 'abcd');
+                    done();
+                })
+
+        });
+
+        it('should call next(err) adding default statusCode if not specified', function (done) {
+            const req = {
+                body: { toolVersionId: 'abcd' }
+            }
+
+            toolServices.deleteToolVersion.returns(new Promise((resolve, reject) => {
+                reject(new Error('tool Service error'));
+            }));
+
+            let error = null;
+            const next = (err) => {
+                error = err;
+            };
+            toolController.deleteToolVersion(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 500);
+                done();
+            });
+        });
+
+        it('should call next(err) keeping specified statusCode', function (done) {
+            const req = {
+                body: { toolVersionId: 'abcd' }
+            }
+
+            toolServices.deleteToolVersion.returns(new Promise((resolve, reject) => {
+                const error = new Error('tool Service error');
+                error.statusCode = 400;
+                reject(error);
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            }
+            toolController.deleteToolVersion(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 400);
+                done();
+            });
+        });
+
 
     });
     describe('#getToolVersion function', function () {
