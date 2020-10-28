@@ -1,10 +1,19 @@
+const Tool = require('../model/tool');
 
-exports.isToolManager = () => {
+exports.createTool = ({ name }) => {
+    return Tool.findOne({ name }).then(existingTool => {
+        if (existingTool) {
+            const error = new Error(`Tool ${name} already exists`);
+            error.statusCode = 409;
+            throw error;
 
-};
-
-exports.createTool = () => {
-
+        }
+        const tool = new Tool({ name });
+        return tool.save()
+            .then(newTool => {
+                return { message: 'Tool created', toolId: newTool._id };
+            })
+    });
 };
 
 exports.deleteTool = () => {
