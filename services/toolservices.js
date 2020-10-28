@@ -40,8 +40,16 @@ exports.updateToolInformations = ({ toolId, vendor }) => {
     });
 };
 
-exports.getTool = () => {
-
+exports.getTool = async ({ toolId }) => {
+    return Tool.findOne({ _id: toolId })
+        .then(tool => {
+            if (!tool) {
+                const error = new Error('Tool not found.')
+                error.statusCode = 404;
+                throw error;
+            }
+            return tool;
+        });
 };
 
 exports.getTools = () => {

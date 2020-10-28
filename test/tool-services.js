@@ -172,8 +172,54 @@ describe('Tool Services', function () {
     });
 
     describe('#getTool function', function () {
+        let registeredTool;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            const tool = new Tool({
+                name: 'tool1',
+            });
+            registeredTool = await tool.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if Tool not found', function (done) {
+            toolServices.getTool({ toolId: ObjectId().toString() })
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', 'Tool not found.');
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should return a tool object if tool found', function (done) {
+            toolServices.getTool({ toolId: registeredTool._id.toString() })
+                .then(result => {
+                    expect(result).to.have.property('_id');
+                    expect(result._id.toString()).to.equal(registeredTool._id.toString());
+                    expect(result).to.have.property('name', registeredTool.name);
+                    done();
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                })
+        });
 
     });
+
     describe('#getTools function', function () {
 
     });
