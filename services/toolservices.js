@@ -27,8 +27,17 @@ exports.deleteTool = async ({ toolId }) => {
     });
 };
 
-exports.updateToolInformations = () => {
-
+exports.updateToolInformations = ({ toolId, vendor }) => {
+    return Tool.findOne({ _id: toolId }).then(tool => {
+        if (!tool) {
+            const error = new Error('Could not find tool.')
+            error.statusCode = 404;
+            throw error;
+        }
+        const params = {}
+        if (vendor) params.vendor = vendor;
+        return tool.updateOne({ $set: params });
+    });
 };
 
 exports.getTool = () => {

@@ -118,8 +118,59 @@ describe('Tool Services', function () {
     });
 
     describe('#updateToolInformations function', function () {
+        before(async () => {
+            await dbHandler.connect();
+        });
 
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            const tool = new Tool({
+                name: 'tool1',
+            });
+            await tool.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if tool to update is not found', function (done) {
+            const id = new ObjectId();
+            const params = { toolId: id.toString() };
+            toolServices.updateToolInformations(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `Could not find tool.`);
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should update Tool vendor if vendor is provided', function (done) {
+            Tool.findOne({ name: 'tool1' })
+                .then(tool => {
+                    const params = { toolId: tool._id.toString(), vendor: 'Vendor' };
+                    toolServices.updateToolInformations(params)
+                        .then(result => {
+                            Tool.findOne({ name: 'tool1' })
+                                .then(newTool => {
+                                    expect(newTool).to.have.property('vendor', params.vendor);
+                                    done();
+                                })
+                        });
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                });
+        })
     });
+
     describe('#getTool function', function () {
 
     });
