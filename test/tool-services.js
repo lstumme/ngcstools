@@ -60,9 +60,63 @@ describe('Tool Services', function () {
         });
 
     });
-    describe('#deleteTool function', function () {
 
+    describe('#deleteTool function', function () {
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            const tool = new Tool({
+                name: 'tool1',
+            });
+            await tool.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if tool to delete is not found', function (done) {
+            const id = new ObjectId();
+            const params = { toolId: id.toString() };
+            toolServices.deleteTool(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `Could not find tool.`);
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should delete tool if tool exists', function (done) {
+            Tool.findOne({ name: 'tool1' })
+                .then(tool => {
+                    const params = { toolId: tool._id.toString() };
+                    toolServices.deleteTool(params)
+                        .then(result => {
+                            Tool.countDocuments({}, function (err, count) {
+                                if (err) {
+                                    assert.fail('Database Error');
+                                }
+                                expect(count).to.equal(0);
+                                done();
+                            });
+                        })
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                })
+        });
     });
+
     describe('#updateToolInformations function', function () {
 
     });

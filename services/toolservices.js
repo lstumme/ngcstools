@@ -1,6 +1,6 @@
 const Tool = require('../model/tool');
 
-exports.createTool = ({ name }) => {
+exports.createTool = async ({ name }) => {
     return Tool.findOne({ name }).then(existingTool => {
         if (existingTool) {
             const error = new Error(`Tool ${name} already exists`);
@@ -16,8 +16,15 @@ exports.createTool = ({ name }) => {
     });
 };
 
-exports.deleteTool = () => {
-
+exports.deleteTool = async ({ toolId }) => {
+    return Tool.findOne({ _id: toolId }).then(tool => {
+        if (!tool) {
+            const error = new Error('Could not find tool.')
+            error.statusCode = 404;
+            throw error;
+        }
+        return { toolId: tool.remove()._id };
+    });
 };
 
 exports.updateToolInformations = () => {
