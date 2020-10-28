@@ -52,8 +52,24 @@ exports.getTool = async ({ toolId }) => {
         });
 };
 
-exports.getTools = () => {
+exports.getTools = async ({ page, perPage }) => {
+    return Tool.countDocuments()
+        .then(count => {
+            const pageCount = Math.trunc(count / perPage) + (count % perPage > 0 ? 1 : 0);
+            if (count <= perPage * (page - 1) || (perPage * (page - 1) < 0)) {
+                const error = new Error('Pagination out of bounds.');
+                error.statusCode = 400;
+                throw error;
+            }
+            return Tool.find().skip((page - 1) * perPage).limit(perPage)
+                .then(result => {
+                    return {
+                        tools: result,
+                        pageCount: pageCount
+                    };
 
+                })
+        });
 };
 
 

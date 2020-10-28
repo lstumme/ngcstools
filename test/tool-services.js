@@ -221,6 +221,74 @@ describe('Tool Services', function () {
     });
 
     describe('#getTools function', function () {
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            for (let i = 0; i < 20; i++) {
+                const tool = new Tool({
+                    name: 'tool' + i,
+                });
+                await tool.save();
+            }
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if range out of bounds', function (done) {
+            toolServices.getTools({ page: 3, perPage: 10 })
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', 'Pagination out of bounds.');
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                })
+        });
+
+        it('should return an object contianing the required data and the number of pages', function (done) {
+            const perPage = 10;
+            toolServices.getTools({ page: 1, perPage: perPage })
+                .then(result => {
+                    expect(result).to.have.property('pageCount', 2);
+                    expect(result).to.have.property('tools').to.have.lengthOf(perPage);
+                    for (let i = 0; i < perPage; i++) {
+                        expect(result.tools[i]).to.have.property('name', 'tool' + i);
+                    }
+                    done();
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                })
+        });
+
+        it('should return an object contianing the required data and the number of pages 2', function (done) {
+            const perPage = 7;
+            toolServices.getTools({ page: 1, perPage: perPage })
+                .then(result => {
+                    expect(result).to.have.property('pageCount', 3);
+                    expect(result).to.have.property('tools').to.have.lengthOf(perPage);
+                    for (let i = 0; i < perPage; i++) {
+                        expect(result.tools[i]).to.have.property('name', 'tool' + i);
+                    }
+                    done();
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                })
+        });
 
     });
     describe('#createToolVersion function', function () {
