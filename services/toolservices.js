@@ -1,4 +1,5 @@
 const Tool = require('../model/tool');
+const ToolVersion = require('../model/toolversion');
 
 exports.createTool = async ({ name }) => {
     return Tool.findOne({ name }).then(existingTool => {
@@ -73,8 +74,28 @@ exports.getTools = async ({ page, perPage }) => {
 };
 
 
-exports.createToolVersion = () => {
-
+exports.createToolVersion = ({ toolId, version }) => {
+    return ToolVersion.findOne({ tool: toolId, version: version })
+        .then(existingToolVersion => {
+            if (existingToolVersion) {
+                const error = new Error(`ToolVersion already exists`);
+                error.statusCode = 409;
+                throw error;
+            }
+            return Tool.findOne({ _id: toolId })
+                .then(existingTool => {
+                    if (!existingTool) {
+                        const error = new Error('Tool not found');
+                        error.statusCode = 404;
+                        throw error;
+                    }
+                    const toolVersion = new ToolVersion({ tool: toolId, version: version });
+                    return toolVersion.save()
+                        .then(newToolVersion => {
+                            return { message: 'ToolVersion created', toolVersionId: newToolVersion._id };
+                        })
+                })
+        })
 };
 exports.deleteToolVersion = () => {
 

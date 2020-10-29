@@ -1,8 +1,9 @@
 const { expect, assert } = require('chai');
-const { ObjectId } = require('mongodb');
+const { ObjectId, ObjectID } = require('mongodb');
 const dbHandler = require('./db-handler');
 const toolServices = require('../services/toolservices');
 const Tool = require('../model/tool');
+const ToolVersion = require('../model/toolversion');
 
 describe('Tool Services', function () {
     describe('#createTool function', function () {
@@ -291,7 +292,110 @@ describe('Tool Services', function () {
         });
 
     });
+
     describe('#createToolVersion function', function () {
+        let tool1;
+        let tool2;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            let tool = new Tool({
+                name: 'tool1'
+            });
+            await tool.save();
+            tool1 = tool;
+
+            tool = new Tool({
+                name: 'tool2'
+            });
+            await tool.save();
+            tool2 = tool;
+
+            const toolVersion = new ToolVersion({
+                tool: tool1._id,
+                version: '1.0.0'
+            });
+            await toolVersion.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if a toolversion already exists', function (done) {
+            const params = { toolId: tool1._id.toString(), version: '1.0.0' };
+            toolServices.createToolVersion(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `ToolVersion already exists`);
+                    expect(err).to.have.property('statusCode', 409);
+                    done();
+                })
+        });
+
+        it('should throw an error if tool does not exist', function (done) {
+            const params = { toolId: new ObjectID()._id.toString(), version: '1.0.0' };
+            toolServices.createToolVersion(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `Tool not found`);
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should create a toolVersion if no versions for this tool exists', function (done) {
+            const params = { toolId: tool2._id, version: '1.0.0' };
+            toolServices.createToolVersion(params)
+                .then(result => {
+                    expect(result).to.have.property('message', `ToolVersion created`);
+                    expect(result).to.have.property('toolVersionId');
+                    ToolVersion.findOne({ '_id': result.toolVersionId })
+                        .then(newTool => {
+                            if (!newTool) {
+                                assert.fail('Tool not created');
+                            }
+                            expect(newTool).to.have.property('version', params.version);
+                            done();
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('ToolService Error');
+                })
+        });
+        it('should create a toolVersion if another version for this tool exists', function (done) {
+            const params = { toolId: tool1._id, version: '2.0.0' };
+            toolServices.createToolVersion(params)
+                .then(result => {
+                    expect(result).to.have.property('message', `ToolVersion created`);
+                    expect(result).to.have.property('toolVersionId');
+                    ToolVersion.findOne({ '_id': result.toolVersionId })
+                        .then(newTool => {
+                            if (!newTool) {
+                                assert.fail('Tool not created');
+                            }
+                            expect(newTool).to.have.property('version', params.version);
+                            expect(newTool.tool.toString()).to.eql(tool1._id.toString());
+                            done();
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('ToolService Error');
+                })
+        });
+
 
     });
     describe('#deleteToolVersion function', function () {
