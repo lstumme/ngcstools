@@ -476,9 +476,63 @@ describe('Tool Services', function () {
                     done();
                 })
         });
-
     });
+
     describe('#getToolVersion function', function () {
+        let toolVersion1;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            const tool = new Tool({
+                name: 'tool1',
+            });
+            await tool.save();
+
+            const toolVersion = new ToolVersion({
+                tool: tool._id,
+                version: '1.0.0'
+            });
+            toolVersion1 = await toolVersion.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if ToolVersion not found', function (done) {
+            toolServices.getToolVersion({ toolVersionId: ObjectId().toString() })
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', 'ToolVersion not found.');
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should return a toolVersion object if toolversion found', function (done) {
+            toolServices.getToolVersion({ toolVersionId: toolVersion1._id.toString() })
+                .then(result => {
+                    expect(result).to.have.property('_id');
+                    expect(result._id.toString()).to.equal(toolVersion1._id.toString());
+                    //expect(result).to.have.own.property('tool');
+                    expect(result.tool.toString()).to.equal(toolVersion1.tool.toString());
+                    expect(result).to.have.property('version', toolVersion1.version);
+                    done();
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                })
+        });
 
     });
     describe('#getToolVersions function', function () {

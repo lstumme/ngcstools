@@ -111,8 +111,17 @@ exports.deleteToolVersion = ({ toolVersionId }) => {
 exports.updateToolVersionInformations = () => {
 
 };
-exports.getToolVersion = () => {
 
+exports.getToolVersion = async ({ toolVersionId }) => {
+    return ToolVersion.findOne({ _id: toolVersionId })
+        .then(toolVersion => {
+            if (!toolVersion) {
+                const error = new Error('ToolVersion not found.')
+                error.statusCode = 404;
+                throw error;
+            }
+            return toolVersion;
+        });
 };
 
 exports.getToolVersions = () => {
