@@ -417,7 +417,65 @@ describe('Tool Services', function () {
 
 
     });
+
     describe('#deleteToolVersion function', function () {
+        let toolVersion1;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            const tool = new Tool({
+                name: 'tool1',
+            });
+            await tool.save();
+
+            const toolVersion = new ToolVersion({
+                tool: tool._id,
+                version: '1.0.0'
+            });
+            toolVersion1 = await toolVersion.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if toolVersion to delete is not found', function (done) {
+            const id = new ObjectId();
+            const params = { toolId: id.toString() };
+            toolServices.deleteToolVersion(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `Could not find toolVersion.`);
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should delete toolVersion if toolVersion exists', function (done) {
+            const params = { toolVersionId: toolVersion1._id.toString() };
+            toolServices.deleteToolVersion(params)
+                .then(result => {
+                    ToolVersion.countDocuments({}, function (err, count) {
+                        if (err) {
+                            assert.fail('Database Error');
+                        }
+                        expect(count).to.equal(0);
+                        done();
+                    });
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                })
+        });
 
     });
     describe('#getToolVersion function', function () {

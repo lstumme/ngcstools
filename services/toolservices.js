@@ -73,7 +73,6 @@ exports.getTools = async ({ page, perPage }) => {
         });
 };
 
-
 exports.createToolVersion = ({ toolId, version }) => {
     return ToolVersion.findOne({ tool: toolId, version: version })
         .then(existingToolVersion => {
@@ -97,9 +96,18 @@ exports.createToolVersion = ({ toolId, version }) => {
                 })
         })
 };
-exports.deleteToolVersion = () => {
 
+exports.deleteToolVersion = ({ toolVersionId }) => {
+    return ToolVersion.findOne({ _id: toolVersionId }).then(toolVersion => {
+        if (!toolVersion) {
+            const error = new Error('Could not find toolVersion.')
+            error.statusCode = 404;
+            throw error;
+        }
+        return { toolVersionId: toolVersion.remove()._id };
+    });
 };
+
 exports.updateToolVersionInformations = () => {
 
 };
