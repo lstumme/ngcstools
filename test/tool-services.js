@@ -478,6 +478,80 @@ describe('Tool Services', function () {
         });
     });
 
+    describe('#updateToolVersionInformations function', function () {
+        let toolVersion1;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            const tool = new Tool({
+                name: 'tool1',
+            });
+            await tool.save();
+
+            const toolVersion = new ToolVersion({
+                tool: tool._id,
+                version: '1.0.0'
+            });
+            toolVersion1 = await toolVersion.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if toolVersion to update is not found', function (done) {
+            const id = new ObjectId();
+            const params = { toolId: id.toString(), location: 'location' };
+            toolServices.updateToolVersionInformations(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `Could not find toolVersion.`);
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should update ToolVersion location if location is provided', function (done) {
+            const params = { toolVersionId: toolVersion1._id.toString(), location: 'location1' };
+            toolServices.updateToolVersionInformations(params)
+                .then(result => {
+                    ToolVersion.findOne({ _id: toolVersion1._id.toString() })
+                        .then(newToolVersion => {
+                            expect(newToolVersion).to.have.property('location', params.location);
+                            done();
+                        })
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                });
+        });
+
+        it('should do nothing if no awaited argument is defined', function (done) {
+            const params = { toolVersionId: toolVersion1._id.toString() };
+            toolServices.updateToolVersionInformations(params)
+                .then(result => {
+                    ToolVersion.findOne({ _id: toolVersion1._id.toString() })
+                        .then(newToolVersion => {
+                            expect(newToolVersion).to.not.have.own.property('location');
+                            done();
+                        })
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                });
+        });
+    });
+
     describe('#getToolVersion function', function () {
         let toolVersion1;
         before(async () => {
@@ -535,7 +609,6 @@ describe('Tool Services', function () {
         });
 
     });
-
 
     describe('#getToolVersions function', function () {
         let tool1;

@@ -108,7 +108,17 @@ exports.deleteToolVersion = ({ toolVersionId }) => {
     });
 };
 
-exports.updateToolVersionInformations = () => {
+exports.updateToolVersionInformations = async ({ toolVersionId, location }) => {
+    return ToolVersion.findOne({ _id: toolVersionId }).then(toolVersion => {
+        if (!toolVersion) {
+            const error = new Error('Could not find toolVersion.')
+            error.statusCode = 404;
+            throw error;
+        }
+        const params = {}
+        if (location) params.location = location;
+        return toolVersion.updateOne({ $set: params });
+    });
 
 };
 
@@ -150,7 +160,6 @@ exports.getToolVersions = async ({ toolId, page, perPage }) => {
                         })
                 })
         })
-
 };
 
 
