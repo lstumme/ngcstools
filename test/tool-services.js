@@ -169,7 +169,26 @@ describe('Tool Services', function () {
                     assert.fail('Error');
                     done();
                 });
-        })
+        });
+
+        it('should do nothing if no awaited argument is defined', function (done) {
+            Tool.findOne({ name: 'tool1' })
+                .then(tool => {
+                    const params = { toolId: tool._id.toString(), falseparam: 'falseparam' };
+                    toolServices.updateToolInformations(params)
+                        .then(result => {
+                            Tool.findOne({ name: 'tool1' })
+                                .then(newTool => {
+                                    expect(newTool).not.to.have.own.property('vendor', params.falseparam);
+                                    done();
+                                })
+                        });
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                });
+        });
     });
 
     describe('#getTool function', function () {
