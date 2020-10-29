@@ -124,7 +124,32 @@ exports.getToolVersion = async ({ toolVersionId }) => {
         });
 };
 
-exports.getToolVersions = () => {
+exports.getToolVersions = async ({ toolId, page, perPage }) => {
+    return Tool.findOne({ _id: toolId })
+        .then(tool => {
+            if (!tool) {
+                const error = new Error('Tool not found');
+                error.statusCode = 404;
+                throw error;
+            }
+            return ToolVersion.countDocuments({ tool: toolId })
+                .then(count => {
+                    const pageCount = Math.trunc(count / perPage) + (count % perPage > 0 ? 1 : 0);
+                    if (count <= perPage * (page - 1) || (perPage * (page - 1) < 0)) {
+                        const error = new Error('Pagination out of bounds.');
+                        error.statusCode = 400;
+                        throw error;
+                    }
+                    return ToolVersion.find({ tool: toolId }).skip((page - 1) * perPage).limit(perPage)
+                        .then(result => {
+                            return {
+                                toolVersions: result,
+                                pageCount: pageCount
+                            };
+
+                        })
+                })
+        })
 
 };
 

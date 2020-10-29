@@ -535,7 +535,112 @@ describe('Tool Services', function () {
         });
 
     });
+
+
     describe('#getToolVersions function', function () {
+        let tool1;
+        let tool2;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            tool1 = new Tool({
+                name: 'tool1'
+            });
+            tool1 = await tool1.save();
+
+            tool2 = new Tool({
+                name: 'tool2'
+            });
+            tool2 = await tool2.save();
+
+            for (let i = 0; i < 30; i++) {
+                if (i % 2 == 0) {
+                    const toolVersion = new ToolVersion({
+                        tool: tool1._id.toString(),
+                        version: i + '.0.0'
+                    });
+                    await toolVersion.save();
+                } else {
+                    const toolVersion = new ToolVersion({
+                        tool: tool2._id.toString(),
+                        version: i + '.0.0'
+                    });
+                    await toolVersion.save();
+                }
+            }
+
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if toolId not found', function (done) {
+            toolServices.getToolVersions({ toolId: new ObjectId().toString(), page: 1, perPage: 10 })
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', 'Tool not found');
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should throw an error if range out of bounds', function (done) {
+            toolServices.getToolVersions({ toolId: tool1._id.toString(), page: 5, perPage: 10 })
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', 'Pagination out of bounds.');
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                })
+        });
+
+        it('should return an object contianing the required data and the number of pages', function (done) {
+            const perPage = 5;
+            toolServices.getToolVersions({ toolId: tool1._id.toString(), page: 1, perPage: perPage })
+                .then(result => {
+                    expect(result).to.have.property('pageCount', 3);
+                    expect(result).to.have.property('toolVersions').to.have.lengthOf(perPage);
+                    for (let i = 0; i < perPage; i++) {
+                        expect(result.toolVersions[i].tool.toString()).to.equal(tool1._id.toString());
+                    }
+                    done();
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                })
+        });
+
+        it('should return an object contianing the required data and the number of pages 2', function (done) {
+            const perPage = 10;
+            toolServices.getToolVersions({ toolId: tool1._id.toString(), page: 1, perPage: perPage })
+                .then(result => {
+                    expect(result).to.have.property('pageCount', 2);
+                    expect(result).to.have.property('toolVersions').to.have.lengthOf(perPage);
+                    for (let i = 0; i < perPage; i++) {
+                        expect(result.toolVersions[i].tool.toString()).to.equal(tool1._id.toString());
+                    }
+                    done();
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                })
+        });
+
 
     });
 
