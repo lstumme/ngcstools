@@ -712,4 +712,102 @@ describe('Module Controller', function () {
             });
         });
     });
+
+    describe('#deleteModule function', function () {
+        beforeEach(function () {
+            sinon.stub(moduleServices, 'deleteModuleVersion');
+        });
+
+        afterEach(function () {
+            moduleServices.deleteModuleVersion.restore();
+        })
+
+        it('should throw an Error if moduleVersionId is not specified', function (done) {
+            const req = {
+                body: {}
+            };
+            moduleController.deleteModuleVersion(req, {}, () => { })
+                .then(response => {
+                    assert.fail('deleteModuleVersion Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                })
+
+        });
+
+        it('should return an object if moduleVersion deletion succeed', function (done) {
+            const req = {
+                body: { moduleVersionId: 'abcd' }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            moduleServices.deleteModuleVersion.returns(new Promise((resolve, reject) => {
+                resolve({ moduleVersionId: 'abcd', name: 'modulename', version: '1.0.0' });
+            }));
+
+            moduleController.deleteModuleVersion(req, res, () => { })
+                .then(result => {
+                    expect(res).to.have.property('statusCode', 201);
+                    expect(res.jsonObject).to.have.property('moduleVersionId', 'abcd');
+                    expect(res.jsonObject).to.have.property('name', 'modulename');
+                    expect(res.jsonObject).to.have.property('version', '1.0.0');
+                    done();
+                })
+
+        });
+
+        it('should call next(err) adding default statusCode if not specified', function (done) {
+            const req = {
+                body: { moduleVersionId: 'abcd' }
+            }
+
+            moduleServices.deleteModuleVersion.returns(new Promise((resolve, reject) => {
+                reject(new Error('module Service error'));
+            }));
+
+            let error = null;
+            const next = (err) => {
+                error = err;
+            };
+            moduleController.deleteModuleVersion(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 500);
+                done();
+            });
+        });
+
+        it('should call next(err) keeping specified statusCode', function (done) {
+            const req = {
+                body: { moduleVersionId: 'abcd' }
+            }
+
+            moduleServices.deleteModuleVersion.returns(new Promise((resolve, reject) => {
+                const error = new Error('module Service error');
+                error.statusCode = 400;
+                reject(error);
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            }
+            moduleController.deleteModuleVersion(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 400);
+                done();
+            });
+        });
+    });
 });

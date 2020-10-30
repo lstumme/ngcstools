@@ -130,6 +130,23 @@ exports.createModuleVersion = async (req, res, next) => {
 };
 
 exports.deleteModuleVersion = async (req, res, next) => {
+    const moduleVersionId = req.body.moduleVersionId;
+    if (!moduleVersionId) {
+        const error = new Error('Bad arguments');
+        error.statusCode = 400;
+        throw error;
+    }
+    return moduleServices.deleteModuleVersion({ moduleVersionId })
+        .then(response => {
+            res.status(201).json({ ...response });
+            return response;
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.updateModuleVersionInformations = async (req, res, next) => {
