@@ -1,3 +1,4 @@
+const { Group } = require('ngcsgroups');
 const Tool = require('../model/tool');
 const ToolVersion = require('../model/toolversion');
 
@@ -163,6 +164,26 @@ exports.getToolVersions = async ({ toolId, page, perPage }) => {
 };
 
 exports.isToolManager = async ({ userId }) => {
+
+    const findUserInSubgroups = async ({ userId, group }) => {
+        if (group.members.includes(userId)) {
+            return true;
+        } else {
+            for (let i = 0; i < group.groups.length; i++) {
+                const subGroupId = group.groups[i].toString();
+                const subGroup = await Group.findOne({ _id: subGroupId });
+                if (await findUserInSubgroups({ userId: userId, group: subGroup })) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
+    return Group.findOne({ name: 'toolsManagers' })
+        .then(toolsManagersGroup => {
+            return findUserInSubgroups({ userId, group: toolsManagersGroup });
+        });
 
 };
 
