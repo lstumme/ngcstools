@@ -569,5 +569,147 @@ describe('Module Controller', function () {
 
     });
 
+    describe('#createModuleVersion function', function () {
+        beforeEach(function () {
+            sinon.stub(moduleServices, 'createModuleVersion');
+        })
 
+        afterEach(function () {
+            moduleServices.createModuleVersion.restore();
+        });
+
+        it('should throw an Error if name is not specified', function (done) {
+            const req = {
+                body: {
+                    moduleId: 'moduleId',
+                    version: '1.0.0'
+                }
+            };
+            moduleController.createModuleVersion(req, {}, () => { })
+                .then(response => {
+                    assert.fail('createModuleVErsion Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                })
+        });
+
+        it('should throw an Error if moduleId is not specified', function (done) {
+            const req = {
+                body: {
+                    name: 'module1',
+                    version: '1.0.0'
+                }
+            };
+            moduleController.createModuleVersion(req, {}, () => { })
+                .then(response => {
+                    assert.fail('createModuleVersion Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                })
+        });
+
+        it('should throw an Error if version is not specified', function (done) {
+            const req = {
+                body: {
+                    name: 'module1',
+                    moduleId: 'module1'
+                }
+            };
+            moduleController.createModuleVersion(req, {}, () => { })
+                .then(response => {
+                    assert.fail('createModuleVersion Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                })
+        });
+
+        it('should return an object if module creation succeed', function (done) {
+            const req = {
+                body: {
+                    name: 'module1',
+                    moduleId: 'moduleId',
+                    version: '1.0.0'
+                }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            moduleServices.createModuleVersion.returns(new Promise((resolve, reject) => {
+                resolve({ moduleId: 'abcd', name: 'module1' });
+            }));
+
+            moduleController.createModuleVersion(req, res, () => { })
+                .then(result => {
+                    expect(res).to.have.property('statusCode', 201);
+                    expect(res.jsonObject).to.have.property('moduleId', 'abcd');
+                    expect(res.jsonObject).to.have.property('name', 'module1');
+                    done();
+                })
+        });
+
+        it('should call next(err) adding default statusCode if not specified', function (done) {
+            const req = {
+                body: {
+                    name: 'module1',
+                    moduleId: 'moduleId',
+                    version: '1.0.0'
+                }
+            }
+
+            moduleServices.createModuleVersion.returns(new Promise((resolve, reject) => {
+                reject(new Error('module Service error'));
+            }));
+
+            let error = null;
+            const next = (err) => {
+                error = err;
+            };
+            moduleController.createModuleVersion(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 500);
+                done();
+            });
+        });
+
+        it('should call next(err) keeping specified statusCode', function (done) {
+            const req = {
+                body: {
+                    name: 'module1',
+                    moduleId: 'moduleId',
+                    version: '1.0.0'
+                }
+            }
+
+            moduleServices.createModuleVersion.returns(new Promise((resolve, reject) => {
+                const error = new Error('moduleVersion Service error');
+                error.statusCode = 400;
+                reject(error);
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            }
+            moduleController.createModuleVersion(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 400);
+                done();
+            });
+        });
+    });
 });
