@@ -162,4 +162,8 @@ exports.getToolVersions = async ({ toolId, page, perPage }) => {
         })
 };
 
+exports.isToolManager = async ({ userId }) => {
+
+};
+
 
