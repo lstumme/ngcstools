@@ -5,5 +5,5 @@ const ModuleSchema = new mongoose.Schema({
     tool: { type: mongoose.ObjectId, required: true, ref: 'Tool' }
 });
 
-module.exports = mongoose.model("Module", MOduleSchema);
+module.exports = mongoose.model("Module", ModuleSchema);
 
