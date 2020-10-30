@@ -153,6 +153,24 @@ exports.updateModuleVersionInformations = async (req, res, next) => {
 };
 
 exports.getModuleVersion = async (req, res, next) => {
+    const moduleVersionId = req.body.moduleVersionId;
+    if (!moduleVersionId) {
+        const error = new Error('Bad arguments.');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    return moduleServices.getModuleVersion({ moduleVersionId })
+        .then(response => {
+            res.status(200).json({ ...response });
+            return response;
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.getModuleVersions = async (req, res, next) => {
