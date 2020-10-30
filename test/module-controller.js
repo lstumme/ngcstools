@@ -123,4 +123,104 @@ describe('Module Controller', function () {
         });
     });
 
+    describe('#deleteModule function', function () {
+        beforeEach(function () {
+            sinon.stub(moduleServices, 'deleteModule');
+        });
+
+        afterEach(function () {
+            moduleServices.deleteModule.restore();
+        })
+
+        it('should throw an Error if moduleId is not specified', function (done) {
+            const req = {
+                body: {}
+            };
+            moduleController.deleteModule(req, {}, () => { })
+                .then(response => {
+                    assert.fail('deleteModule Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                })
+
+        });
+
+        it('should return an object if module deletion succeed', function (done) {
+            const req = {
+                body: { moduleId: 'abcd' }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            moduleServices.deleteModule.returns(new Promise((resolve, reject) => {
+                resolve({ moduleId: 'abcd', name: 'modulename', vendor: 'vendor' });
+            }));
+
+            moduleController.deleteModule(req, res, () => { })
+                .then(result => {
+                    expect(res).to.have.property('statusCode', 201);
+                    expect(res.jsonObject).to.have.property('moduleId', 'abcd');
+                    expect(res.jsonObject).to.have.property('name', 'modulename');
+                    expect(res.jsonObject).to.have.property('vendor', 'vendor');
+                    done();
+                })
+
+        });
+
+        it('should call next(err) adding default statusCode if not specified', function (done) {
+            const req = {
+                body: { moduleId: 'abcd' }
+            }
+
+            moduleServices.deleteModule.returns(new Promise((resolve, reject) => {
+                reject(new Error('module Service error'));
+            }));
+
+            let error = null;
+            const next = (err) => {
+                error = err;
+            };
+            moduleController.deleteModule(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 500);
+                done();
+            });
+        });
+
+        it('should call next(err) keeping specified statusCode', function (done) {
+            const req = {
+                body: { moduleId: 'abcd' }
+            }
+
+            moduleServices.deleteModule.returns(new Promise((resolve, reject) => {
+                const error = new Error('module Service error');
+                error.statusCode = 400;
+                reject(error);
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            }
+            moduleController.deleteModule(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 400);
+                done();
+            });
+        });
+
+
+    });
+
 });
