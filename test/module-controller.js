@@ -713,7 +713,7 @@ describe('Module Controller', function () {
         });
     });
 
-    describe('#deleteModule function', function () {
+    describe('#deleteModuleVersion function', function () {
         beforeEach(function () {
             sinon.stub(moduleServices, 'deleteModuleVersion');
         });
@@ -766,7 +766,6 @@ describe('Module Controller', function () {
                     expect(res.jsonObject).to.have.property('version', '1.0.0');
                     done();
                 })
-
         });
 
         it('should call next(err) adding default statusCode if not specified', function (done) {
