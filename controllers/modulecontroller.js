@@ -42,6 +42,24 @@ exports.deleteModule = async (req, res, next) => {
 };
 
 exports.updateModuleInformations = async (req, res, next) => {
+    const moduleId = req.body.moduleId;
+    const vendor = req.body.vendor;
+    if (!moduleId) {
+        const error = new Error('Bad arguments');
+        error.statusCode = 400;
+        throw error;
+    }
+    return moduleServices.updateModuleInformations({ moduleId, vendor })
+        .then(response => {
+            res.status(200).json({ ...response });
+            return response;
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.getModule = async (req, res, next) => {
