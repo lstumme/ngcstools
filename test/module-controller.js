@@ -907,5 +907,150 @@ describe('Module Controller', function () {
         });
     });
 
+    describe("#getModuleVersions function", function () {
+        beforeEach(function () {
+            sinon.stub(moduleServices, 'getModuleVersions');
+        });
 
+        afterEach(function () {
+            moduleServices.getModuleVersions.restore();
+        });
+
+        it('should throw an error if no moduleId specified', function (done) {
+            const req = {
+                body: {
+                    page: 1,
+                    perPage: 20
+                }
+            }
+            moduleController.getModuleVersions(req, {}, () => { })
+                .then(response => {
+                    assert.fail('Test process Error');
+                    done();
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                });
+        });
+
+        it('should throw an error if no page specified', function (done) {
+            const req = {
+                body: {
+                    moduleId: 'toolId',
+                    perPage: 20
+                }
+            }
+            moduleController.getModuleVersions(req, {}, () => { })
+                .then(response => {
+                    assert.fail('Test process Error');
+                    done();
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                });
+        });
+
+        it('should throw an error if no perPage specified', function (done) {
+            const req = {
+                body: {
+                    moduleId: 'toolId',
+                    page: 1
+                }
+            }
+            moduleController.getModuleVersions(req, {}, () => { })
+                .then(response => {
+                    assert.fail('Test process Error');
+                    done();
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                });
+        });
+
+
+        it('should return an array if request succeed', function (done) {
+            const req = {
+                body: {
+                    moduleId: 'toolId',
+                    page: 1,
+                    perPage: 10
+                }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+            moduleServices.getModuleVersions.returns(new Promise((resolve, reject) => {
+                resolve([
+                    { moduleVersionId: 'module1' },
+                    { moduleVersionId: 'module2' },
+                    { moduleVersionId: 'module3' },
+                ]);
+            }));
+
+            moduleController.getModuleVersions(req, res, () => { }).then(result => {
+                expect(res).to.have.property('statusCode', 200);
+                expect(res.jsonObject).to.have.lengthOf(3);
+                done();
+            });
+        });
+
+        it('should call next(err) adding default statusCode if not specified', function (done) {
+            const req = {
+                body: {
+                    moduleId: 'toolId',
+                    page: 1,
+                    perPage: 10
+                }
+            }
+            moduleServices.getModuleVersions.returns(new Promise((resolve, reject) => {
+                throw new Error('Undefined Error');
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            };
+            moduleController.getModuleVersions(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 500);
+                done();
+            });
+        });
+
+        it('should call next(err) keeping specified statusCode', function (done) {
+            const req = {
+                body: {
+                    moduleId: 'toolId',
+                    page: 1,
+                    perPage: 10
+                }
+            }
+            moduleServices.getModuleVersions.returns(new Promise((resolve, reject) => {
+                const error = new Error('Udefined Error');
+                error.statusCode = 400;
+                throw error;
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            }
+            moduleController.getModuleVersions(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 400);
+                done();
+            });
+        });
+
+    });
 });

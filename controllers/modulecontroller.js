@@ -174,6 +174,25 @@ exports.getModuleVersion = async (req, res, next) => {
 };
 
 exports.getModuleVersions = async (req, res, next) => {
+    const page = req.body.page;
+    const perPage = req.body.perPage;
+    const moduleId = req.body.moduleId;
+    if (!moduleId || !page || !perPage) {
+        const error = new Error('Bad arguments.');
+        error.statusCode = 400;
+        throw error;
+    }
+    return moduleServices.getModuleVersions({ moduleId, page, perPage })
+        .then(response => {
+            res.status(200).json(response);
+            return response;
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 
