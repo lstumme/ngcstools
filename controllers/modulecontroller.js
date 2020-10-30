@@ -83,8 +83,29 @@ exports.getModule = async (req, res, next) => {
         });
 };
 
+
 exports.getModules = async (req, res, next) => {
+    const page = req.body.page;
+    const perPage = req.body.perPage;
+    const toolId = req.body.toolId;
+    if (!toolId || !page || !perPage) {
+        const error = new Error('Bad arguments.');
+        error.statusCode = 400;
+        throw error;
+    }
+    return moduleServices.getModules({ toolId, page, perPage })
+        .then(response => {
+            res.status(200).json(response);
+            return response;
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
+
 
 exports.createModuleVersion = async (req, res, next) => {
 };
