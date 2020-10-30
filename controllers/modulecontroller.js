@@ -63,6 +63,24 @@ exports.updateModuleInformations = async (req, res, next) => {
 };
 
 exports.getModule = async (req, res, next) => {
+    const moduleId = req.body.moduleId;
+    if (!moduleId) {
+        const error = new Error('Bad arguments.');
+        error.statusCode = 400;
+        throw error;
+    }
+
+    return moduleServices.getModule({ moduleId })
+        .then(response => {
+            res.status(200).json({ ...response });
+            return response;
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.getModules = async (req, res, next) => {
