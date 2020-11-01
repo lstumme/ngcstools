@@ -9,7 +9,7 @@ exports.createTool = async (req, res, next) => {
     }
     return toolServices.createTool({ name })
         .then(response => {
-            res.status(201).json({ ...response });
+            res.status(201).json({ message: 'Tool created', data: response });
             return response;
         })
         .catch(err => {
@@ -29,7 +29,7 @@ exports.deleteTool = async (req, res, next) => {
     }
     return toolServices.deleteTool({ toolId })
         .then(response => {
-            res.status(201).json({ ...response });
+            res.status(201).json({ message: 'Tool deleted', data: response });
             return response;
         })
         .catch(err => {
@@ -51,7 +51,7 @@ exports.updateToolInformations = async (req, res, next) => {
     }
     return toolServices.updateToolInformations({ toolId, vendor })
         .then(response => {
-            res.status(200).json({ ...response });
+            res.status(200).json({ message: 'Tool updated', data: response });
             return response;
         })
         .catch(err => {
@@ -115,7 +115,7 @@ exports.createToolVersion = async (req, res, next) => {
     }
     return toolServices.createToolVersion({ toolId, version })
         .then(response => {
-            res.status(201).json({ ...response });
+            res.status(201).json({ message: 'Tool version created', data: response });
             return response;
         })
         .catch(err => {
@@ -135,7 +135,7 @@ exports.deleteToolVersion = async (req, res, next) => {
     }
     return toolServices.deleteToolVersion({ toolVersionId })
         .then(response => {
-            res.status(201).json({ ...response });
+            res.status(201).json({ message: 'Tool version deleted', data: response });
             return response;
         })
         .catch(err => {
@@ -156,7 +156,7 @@ exports.updateToolVersionInformations = async (req, res, next) => {
     }
     return toolServices.updateToolVersionInformations({ toolVersionId, location })
         .then(response => {
-            res.status(200).json({ ...response });
+            res.status(200).json({ message: 'Tool version updated', data: response });
             return response;
         })
         .catch(err => {

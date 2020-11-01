@@ -69,8 +69,9 @@ describe('Module Controller', function () {
             moduleController.createModule(req, res, () => { })
                 .then(result => {
                     expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('moduleId', 'abcd');
-                    expect(res.jsonObject).to.have.property('name', 'module1');
+                    expect(res.jsonObject).to.have.property('message', 'Module created');
+                    expect(res.jsonObject.data).to.have.property('moduleId', 'abcd');
+                    expect(res.jsonObject.data).to.have.property('name', 'module1');
                     done();
                 })
         });
@@ -171,9 +172,10 @@ describe('Module Controller', function () {
             moduleController.deleteModule(req, res, () => { })
                 .then(result => {
                     expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('moduleId', 'abcd');
-                    expect(res.jsonObject).to.have.property('name', 'modulename');
-                    expect(res.jsonObject).to.have.property('vendor', 'vendor');
+                    expect(res.jsonObject).to.have.property('message', 'Module deleted');
+                    expect(res.jsonObject.data).to.have.property('moduleId', 'abcd');
+                    expect(res.jsonObject.data).to.have.property('name', 'modulename');
+                    expect(res.jsonObject.data).to.have.property('vendor', 'vendor');
                     done();
                 })
 
@@ -274,7 +276,8 @@ describe('Module Controller', function () {
 
             moduleController.updateModuleInformations(req, res, () => { }).then(result => {
                 expect(res).to.have.property('statusCode', 200);
-                expect(res.jsonObject).to.have.property('moduleId', 'abc');
+                expect(res.jsonObject).to.have.property('message', 'Module updated');
+                expect(res.jsonObject.data).to.have.property('moduleId', 'abc');
                 done();
             });
         });
@@ -657,8 +660,9 @@ describe('Module Controller', function () {
             moduleController.createModuleVersion(req, res, () => { })
                 .then(result => {
                     expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('moduleId', 'abcd');
-                    expect(res.jsonObject).to.have.property('name', 'module1');
+                    expect(res.jsonObject).to.have.property('message', 'Module version created');
+                    expect(res.jsonObject.data).to.have.property('moduleId', 'abcd');
+                    expect(res.jsonObject.data).to.have.property('name', 'module1');
                     done();
                 })
         });
@@ -761,9 +765,10 @@ describe('Module Controller', function () {
             moduleController.deleteModuleVersion(req, res, () => { })
                 .then(result => {
                     expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('moduleVersionId', 'abcd');
-                    expect(res.jsonObject).to.have.property('name', 'modulename');
-                    expect(res.jsonObject).to.have.property('version', '1.0.0');
+                    expect(res.jsonObject).to.have.property('message', 'Module version deleted');
+                    expect(res.jsonObject.data).to.have.property('moduleVersionId', 'abcd');
+                    expect(res.jsonObject.data).to.have.property('name', 'modulename');
+                    expect(res.jsonObject.data).to.have.property('version', '1.0.0');
                     done();
                 })
         });

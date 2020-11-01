@@ -53,8 +53,9 @@ describe('Tool Controller', function () {
             toolController.createTool(req, res, () => { })
                 .then(result => {
                     expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('toolId', 'abcd');
-                    expect(res.jsonObject).to.have.property('name', 'tool1');
+                    expect(res.jsonObject).to.have.property('message', 'Tool created');
+                    expect(res.jsonObject.data).to.have.property('toolId', 'abcd');
+                    expect(res.jsonObject.data).to.have.property('name', 'tool1');
                     done();
                 })
         });
@@ -149,9 +150,10 @@ describe('Tool Controller', function () {
             toolController.deleteTool(req, res, () => { })
                 .then(result => {
                     expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('toolId', 'abcd');
-                    expect(res.jsonObject).to.have.property('name', 'toolname');
-                    expect(res.jsonObject).to.have.property('vendor', 'vendor');
+                    expect(res.jsonObject).to.have.property('message', 'Tool deleted');
+                    expect(res.jsonObject.data).to.have.property('toolId', 'abcd');
+                    expect(res.jsonObject.data).to.have.property('name', 'toolname');
+                    expect(res.jsonObject.data).to.have.property('vendor', 'vendor');
                     done();
                 })
 
@@ -269,7 +271,8 @@ describe('Tool Controller', function () {
 
             toolController.updateToolInformations(req, res, () => { }).then(result => {
                 expect(res).to.have.property('statusCode', 200);
-                expect(res.jsonObject).to.have.property('toolId', 'abc');
+                expect(res.jsonObject).to.have.property('message', 'Tool updated');
+                expect(res.jsonObject.data).to.have.property('toolId', 'abc');
                 done();
             });
         });
@@ -605,9 +608,10 @@ describe('Tool Controller', function () {
             toolController.createToolVersion(req, res, () => { })
                 .then(result => {
                     expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('toolVersionId', 'abcd');
-                    expect(res.jsonObject).to.have.property('toolId', 'toolId');
-                    expect(res.jsonObject).to.have.property('version', 'version');
+                    expect(res.jsonObject).to.have.property('message', 'Tool version created');
+                    expect(res.jsonObject.data).to.have.property('toolVersionId', 'abcd');
+                    expect(res.jsonObject.data).to.have.property('toolId', 'toolId');
+                    expect(res.jsonObject.data).to.have.property('version', 'version');
                     done();
                 })
         });
@@ -709,7 +713,8 @@ describe('Tool Controller', function () {
             toolController.deleteToolVersion(req, res, () => { })
                 .then(result => {
                     expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('toolVersionId', 'abcd');
+                    expect(res.jsonObject).to.have.property('message', 'Tool version deleted');
+                    expect(res.jsonObject.data).to.have.property('toolVersionId', 'abcd');
                     done();
                 })
 
@@ -827,7 +832,8 @@ describe('Tool Controller', function () {
 
             toolController.updateToolVersionInformations(req, res, () => { }).then(result => {
                 expect(res).to.have.property('statusCode', 200);
-                expect(res.jsonObject).to.have.property('toolVersionId', 'abc');
+                expect(res.jsonObject).to.have.property('message', 'Tool version updated');
+                expect(res.jsonObject.data).to.have.property('toolVersionId', 'abc');
                 done();
             });
         });

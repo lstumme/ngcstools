@@ -10,7 +10,7 @@ exports.createModule = async (req, res, next) => {
     }
     return moduleServices.createModule({ name, toolId })
         .then(response => {
-            res.status(201).json({ ...response });
+            res.status(201).json({ message: 'Module created', data: response });
             return response;
         })
         .catch(err => {
@@ -30,7 +30,7 @@ exports.deleteModule = async (req, res, next) => {
     }
     return moduleServices.deleteModule({ moduleId })
         .then(response => {
-            res.status(201).json({ ...response });
+            res.status(201).json({ message: 'Module deleted', data: response });
             return response;
         })
         .catch(err => {
@@ -51,7 +51,7 @@ exports.updateModuleInformations = async (req, res, next) => {
     }
     return moduleServices.updateModuleInformations({ moduleId, vendor })
         .then(response => {
-            res.status(200).json({ ...response });
+            res.status(200).json({ message: 'Module updated', data: response });
             return response;
         })
         .catch(err => {
@@ -118,7 +118,7 @@ exports.createModuleVersion = async (req, res, next) => {
     }
     return moduleServices.createModuleVersion({ name, moduleId, version })
         .then(response => {
-            res.status(201).json({ ...response });
+            res.status(201).json({ message: 'Module version created', data: response });
             return response;
         })
         .catch(err => {
@@ -138,7 +138,7 @@ exports.deleteModuleVersion = async (req, res, next) => {
     }
     return moduleServices.deleteModuleVersion({ moduleVersionId })
         .then(response => {
-            res.status(201).json({ ...response });
+            res.status(201).json({ message: 'Module version deleted', data: response });
             return response;
         })
         .catch(err => {
