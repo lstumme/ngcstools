@@ -109,15 +109,14 @@ exports.getModules = async (req, res, next) => {
 
 
 exports.createModuleVersion = async (req, res, next) => {
-    const name = req.body.name;
     const moduleId = req.body.moduleId;
     const version = req.body.version;
-    if (!name || !moduleId || !version) {
+    if (!moduleId || !version) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
         throw error;
     }
-    return moduleServices.createModuleVersion({ name, moduleId, version })
+    return moduleServices.createModuleVersion({ moduleId, version })
         .then(response => {
             res.status(201).json({ message: 'Module version created', data: response });
             return response;

@@ -582,27 +582,9 @@ describe('Module Controller', function () {
             moduleServices.createModuleVersion.restore();
         });
 
-        it('should throw an Error if name is not specified', function (done) {
-            const req = {
-                body: {
-                    moduleId: 'moduleId',
-                    version: '1.0.0'
-                }
-            };
-            moduleController.createModuleVersion(req, {}, () => { })
-                .then(response => {
-                    assert.fail('createModuleVErsion Error');
-                })
-                .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                })
-        });
-
         it('should throw an Error if moduleId is not specified', function (done) {
             const req = {
                 body: {
-                    name: 'module1',
                     version: '1.0.0'
                 }
             };
@@ -619,7 +601,6 @@ describe('Module Controller', function () {
         it('should throw an Error if version is not specified', function (done) {
             const req = {
                 body: {
-                    name: 'module1',
                     moduleId: 'module1'
                 }
             };
@@ -636,7 +617,6 @@ describe('Module Controller', function () {
         it('should return an object if module creation succeed', function (done) {
             const req = {
                 body: {
-                    name: 'module1',
                     moduleId: 'moduleId',
                     version: '1.0.0'
                 }
@@ -671,7 +651,6 @@ describe('Module Controller', function () {
         it('should call next(err) adding default statusCode if not specified', function (done) {
             const req = {
                 body: {
-                    name: 'module1',
                     moduleId: 'moduleId',
                     version: '1.0.0'
                 }
@@ -695,7 +674,6 @@ describe('Module Controller', function () {
         it('should call next(err) keeping specified statusCode', function (done) {
             const req = {
                 body: {
-                    name: 'module1',
                     moduleId: 'moduleId',
                     version: '1.0.0'
                 }

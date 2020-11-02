@@ -3,6 +3,7 @@ const moduleController = require('../controllers/modulecontroller');
 const Tool = require('../model/tool');
 const Module = require('../model/module');
 const dbHandler = require('./db-handler');
+const ModuleVersion = require('../model/moduleversion');
 
 describe('Module integration', function () {
     describe('#createModule', function (done) {
@@ -178,4 +179,71 @@ describe('Module integration', function () {
 
     });
 
+    describe('#createModuleVersion', function (done) {
+        let module;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            tool = new Tool({
+                name: 'tool1'
+            });
+            tool = await tool.save();
+
+            module = new Module({
+                name: 'module1',
+                tool: tool._id.toString()
+            });
+            await module.save();
+
+            const moduleVersion = new ModuleVersion({
+                module: module._id,
+                version: '1.0.0'
+            });
+            await moduleVersion.save();
+
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should return an object if module version creation succeed', function (done) {
+            const req = {
+                body: {
+                    moduleId: module._id.toString(),
+                    version: '2.0.0'
+                }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            moduleController.createModuleVersion(req, res, () => { })
+                .then(result => {
+                    expect(res).to.have.property('statusCode', 201);
+                    expect(res.jsonObject).to.have.property('message', 'Module version created');
+                    expect(res.jsonObject.data).to.haveOwnProperty('moduleVersionId');
+                    expect(res.jsonObject.data).to.have.property('moduleId', module._id.toString());
+                    expect(res.jsonObject.data).to.have.property('version', '2.0.0');
+                    done();
+                })
+        });
+
+
+    });
 });
