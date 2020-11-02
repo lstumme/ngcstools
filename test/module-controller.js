@@ -242,7 +242,7 @@ describe('Module Controller', function () {
             }
             moduleController.updateModuleInformations(req, {}, () => { })
                 .then(response => {
-                    assert.fail('deleteModule error');
+                    assert.fail('updateModuleInformations error');
                     done();
                 })
                 .catch(err => {
@@ -792,6 +792,117 @@ describe('Module Controller', function () {
                 done();
             });
         });
+    });
+
+    describe('#updateModuleVersionInformations', function () {
+        beforeEach(function () {
+            sinon.stub(moduleServices, 'updateModuleVersionInformations');
+        });
+
+        afterEach(function () {
+            moduleServices.updateModuleVersionInformations.restore();
+        });
+
+        it('should throw an error if no moduleVersionId specified', function (done) {
+            const req = {
+                body: {
+                    location: 'location',
+                    informations: 'informations'
+                }
+            }
+            moduleController.updateModuleVersionInformations(req, {}, () => { })
+                .then(response => {
+                    assert.fail('updateModuleVersionInformations error');
+                    done();
+                })
+                .catch(err => {
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                });
+        });
+
+        it('should return an object if update succeed', function (done) {
+            const req = {
+                body: {
+                    moduleVersionId: 'abc',
+                    location: 'location',
+                    informations: 'informations'
+                }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+            moduleServices.updateModuleVersionInformations.returns(new Promise((resolve, reject) => {
+                resolve({ moduleVersionId: 'moduleVersionId', informations: 'informations', location: 'location', moduleId: 'moduleId' });
+            }));
+
+            moduleController.updateModuleVersionInformations(req, res, () => { }).then(result => {
+                expect(res).to.have.property('statusCode', 200);
+                expect(res.jsonObject).to.have.property('message', 'Module version updated');
+                expect(res.jsonObject.data).to.have.property('moduleVersionId', 'moduleVersionId');
+                expect(res.jsonObject.data).to.have.property('informations', 'informations');
+                expect(res.jsonObject.data).to.have.property('location', 'location');
+                expect(res.jsonObject.data).to.have.property('moduleId', 'moduleId');
+                done();
+            });
+        });
+
+        it('should call next(err) adding default statusCode if not specified', function (done) {
+            const req = {
+                body: {
+                    moduleVersionId: 'abc',
+                    location: 'location',
+                    informations: 'informations'
+                }
+            }
+
+            moduleServices.updateModuleVersionInformations.returns(new Promise((resolve, reject) => {
+                throw new Error('Undefined Error');
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            };
+            moduleController.updateModuleVersionInformations(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 500);
+                done();
+            });
+        });
+
+        it('should call next(err) keeping specified statusCode', function (done) {
+            const req = {
+                body: {
+                    moduleVersionId: 'abc',
+                    location: 'location',
+                    informations: 'informations'
+                }
+            }
+            moduleServices.updateModuleVersionInformations.returns(new Promise((resolve, reject) => {
+                const error = new Error('Undefined Error');
+                error.statusCode = 400;
+                throw error;
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            }
+            moduleController.updateModuleVersionInformations(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 400);
+                done();
+            });
+        });
+
     });
 
     describe('#getModuleVersion function', function () {

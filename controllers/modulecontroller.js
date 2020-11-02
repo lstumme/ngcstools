@@ -150,6 +150,25 @@ exports.deleteModuleVersion = async (req, res, next) => {
 };
 
 exports.updateModuleVersionInformations = async (req, res, next) => {
+    const moduleVersionId = req.body.moduleVersionId;
+    const location = req.body.location;
+    const informations = req.body.informations;
+    if (!moduleVersionId) {
+        const error = new Error('Bad arguments');
+        error.statusCode = 400;
+        throw error;
+    }
+    return moduleServices.updateModuleVersionInformations({ moduleVersionId, location, informations })
+        .then(response => {
+            res.status(200).json({ message: 'Module version updated', data: response });
+            return response;
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.getModuleVersion = async (req, res, next) => {

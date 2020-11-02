@@ -306,4 +306,8 @@ describe('Module integration', function () {
                 })
         });
     });
+
+    describe('#updateModuleVersionInformations', function (done) {
+
+    });
 });
