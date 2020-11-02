@@ -500,5 +500,71 @@ describe('Module Services', function () {
 
     });
 
+    describe('#deleteModuleVersion function', function () {
+        let moduleVersion;
+        before(async () => {
+            await dbHandler.connect();
+        });
 
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            tool = new Tool({
+                name: 'tool1'
+            });
+            tool = await tool.save();
+
+            const module = new Module({
+                name: 'module1',
+                tool: tool._id.toString()
+            });
+            await module.save();
+
+            moduleVersion = new ModuleVersion({
+                module: module._id,
+                version: '1.0.0'
+            });
+            moduleVersion = await moduleVersion.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if moduleVersion to delete is not found', function (done) {
+            const id = new ObjectId();
+            const params = { moduleId: id.toString() };
+            moduleServices.deleteModuleVersion(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `Could not find module version.`);
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should delete module version if module exists', function (done) {
+            const params = { moduleVersionId: moduleVersion._id.toString() };
+            moduleServices.deleteModuleVersion(params)
+                .then(result => {
+                    ModuleVersion.countDocuments({}, function (err, count) {
+                        if (err) {
+                            assert.fail('Database Error');
+                        }
+                        expect(count).to.equal(0);
+                        done();
+                    });
+                    expect(result).to.have.property('moduleVersionId', moduleVersion._id.toString());
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                })
+        });
+    });
 });

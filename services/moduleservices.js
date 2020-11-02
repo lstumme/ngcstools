@@ -130,7 +130,18 @@ exports.createModuleVersion = ({ moduleId, version }) => {
     });
 };
 
-exports.deleteModuleVersion = ({ toolVersionId }) => {
+exports.deleteModuleVersion = ({ moduleVersionId }) => {
+    return ModuleVersion.findOne({ _id: moduleVersionId }).then(moduleVersion => {
+        if (!moduleVersion) {
+            const error = new Error('Could not find module version.')
+            error.statusCode = 404;
+            throw error;
+        }
+        return moduleVersion.remove()
+            .then(m => {
+                return { moduleVersionId: moduleVersion._id.toString() };
+            })
+    });
 };
 
 exports.updateModuleVersionInformations = async ({ toolVersionId, location }) => {
