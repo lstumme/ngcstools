@@ -84,7 +84,23 @@ exports.getModule = async ({ moduleId }) => {
         });
 };
 
-exports.getModules = async ({ page, perPage }) => {
+exports.getModules = async ({ toolId, page, perPage }) => {
+    return Module.countDocuments({ tool: toolId })
+        .then(count => {
+            const pageCount = Math.trunc(count / perPage) + (count % perPage > 0 ? 1 : 0);
+            if (count <= perPage * (page - 1) || (perPage * (page - 1) < 0)) {
+                const error = new Error('Pagination out of bounds.');
+                error.statusCode = 400;
+                throw error;
+            }
+            return Module.find({ tool: toolId }).skip((page - 1) * perPage).limit(perPage)
+                .then(result => {
+                    return {
+                        modules: result,
+                        pageCount: pageCount
+                    };
+                })
+        });
 };
 
 exports.createModuleVersion = ({ toolId, version }) => {
