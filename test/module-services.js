@@ -567,4 +567,116 @@ describe('Module Services', function () {
                 })
         });
     });
+
+    describe('#updateModuleInformations function', function () {
+        let moduleVersion;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            tool = new Tool({
+                name: 'tool1'
+            });
+            tool = await tool.save();
+
+            const module = new Module({
+                name: 'module1',
+                tool: tool._id.toString()
+            });
+            await module.save();
+
+            moduleVersion = new ModuleVersion({
+                module: module._id,
+                version: '1.0.0'
+            });
+            moduleVersion = await moduleVersion.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if moduleVersion to update is not found', function (done) {
+            const params = {
+                moduleVersionId: (new ObjectId()).toString(),
+                location: 'location',
+                informations: 'informations'
+            };
+            moduleServices.updateModuleVersionInformations(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `Could not find module version.`);
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should update Module location if location is provided', function (done) {
+            const params = {
+                moduleVersionId: moduleVersion._id.toString(),
+                location: 'location',
+            };
+            moduleServices.updateModuleVersionInformations(params)
+                .then(result => {
+                    expect(result).to.have.property('location', params.vendor);
+                    ModuleVersion.findOne({ _id: moduleVersion._id })
+                        .then(newModuleVersion => {
+                            expect(newModuleVersion).to.have.property('location', params.location);
+                            done();
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                });
+        });
+
+        it('should update Module informations if informations is provided', function (done) {
+            const params = {
+                moduleVersionId: moduleVersion._id.toString(),
+                informations: 'informations'
+            };
+            moduleServices.updateModuleVersionInformations(params)
+                .then(result => {
+                    expect(result).to.have.property('informations', params.informations);
+                    ModuleVersion.findOne({ _id: moduleVersion._id })
+                        .then(newModuleVersion => {
+                            expect(newModuleVersion).to.have.property('informations', params.informations);
+                            done();
+                        })
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                });
+        });
+
+        it('should do nothing if no awaited argument is defined', function (done) {
+            const params = {
+                moduleVersionId: moduleVersion._id.toString(),
+            };
+            moduleServices.updateModuleVersionInformations(params)
+                .then(result => {
+                    ModuleVersion.findOne({ _id: params.moduleVersionId })
+                        .then(newModuleVersion => {
+                            expect(newModuleVersion).not.to.have.own.property('location');
+                            expect(newModuleVersion).not.to.have.own.property('informations');
+                            done();
+                        })
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                });
+        });
+    });
+
 });

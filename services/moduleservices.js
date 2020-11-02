@@ -144,7 +144,25 @@ exports.deleteModuleVersion = ({ moduleVersionId }) => {
     });
 };
 
-exports.updateModuleVersionInformations = async ({ toolVersionId, location }) => {
+exports.updateModuleVersionInformations = async ({ moduleVersionId, location, informations }) => {
+    return ModuleVersion.findOne({ _id: moduleVersionId }).then(moduleVersion => {
+        if (!moduleVersion) {
+            const error = new Error('Could not find module version.')
+            error.statusCode = 404;
+            throw error;
+        }
+        if (location) moduleVersion.location = location;
+        if (informations) moduleVersion.informations = informations
+        return moduleVersion.save()
+            .then(m => {
+                return {
+                    moduleVersionId: m._id.toString(),
+                    moduleId: m.module.toString(),
+                    location: m.vendor,
+                    informations: m.informations
+                }
+            })
+    });
 };
 
 exports.getModuleVersion = async ({ toolVersionId }) => {
