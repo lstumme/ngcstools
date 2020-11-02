@@ -66,7 +66,22 @@ exports.updateModuleInformations = ({ moduleId, vendor, informations }) => {
     });
 };
 
-exports.getModule = async ({ toolId }) => {
+exports.getModule = async ({ moduleId }) => {
+    return Module.findOne({ _id: moduleId })
+        .then(module => {
+            if (!module) {
+                const error = new Error('Module not found.')
+                error.statusCode = 404;
+                throw error;
+            }
+            return {
+                moduleId: module._id.toString(),
+                name: module.name,
+                toolId: module.tool.toString(),
+                vendor: module.vendor,
+                informations: module.informations
+            };
+        });
 };
 
 exports.getModules = async ({ page, perPage }) => {

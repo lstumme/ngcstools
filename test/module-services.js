@@ -254,6 +254,65 @@ describe('Module Services', function () {
         });
     });
 
+    describe('#getModule function', function () {
+        let registeredModule;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            let tool = new Tool({
+                name: 'tool1',
+            });
+            tool = await tool.save();
+
+            registeredModule = new Module({
+                name: 'module1',
+                tool: tool._id.toString(),
+                vendor: 'vendor1',
+                informations: 'informations1'
+            });
+            registeredModule = await registeredModule.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if Module not found', function (done) {
+            moduleServices.getModule({ moduleId: ObjectId().toString() })
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', 'Module not found.');
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should return a module object if module found', function (done) {
+            moduleServices.getModule({ moduleId: registeredModule._id.toString() })
+                .then(result => {
+                    expect(result).to.have.property('moduleId', registeredModule._id.toString());
+                    expect(result).to.have.property('toolId', registeredModule.tool.toString());
+                    expect(result).to.have.property('name', registeredModule.name);
+                    expect(result).to.have.property('vendor', registeredModule.vendor);
+                    expect(result).to.have.property('informations', registeredModule.informations);
+                    done();
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                })
+        });
+
+    });
 
 
 });
