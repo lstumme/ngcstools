@@ -679,4 +679,70 @@ describe('Module Services', function () {
         });
     });
 
+    describe('#getModuleVersion function', function () {
+        let moduleVersion;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            tool = new Tool({
+                name: 'tool1'
+            });
+            tool = await tool.save();
+
+            const module = new Module({
+                name: 'module1',
+                tool: tool._id.toString()
+            });
+            await module.save();
+
+            moduleVersion = new ModuleVersion({
+                module: module._id,
+                version: '1.0.0',
+                location: 'location1',
+                informations: 'informations1'
+            });
+            moduleVersion = await moduleVersion.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if Module version not found', function (done) {
+            moduleServices.getModuleVersion({ moduleVersionId: ObjectId().toString() })
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', 'Module version not found.');
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should return a module version object if module version found', function (done) {
+            moduleServices.getModuleVersion({ moduleVersionId: moduleVersion._id.toString() })
+                .then(result => {
+                    expect(result).to.have.property('moduleVersionId', moduleVersion._id.toString());
+                    expect(result).to.have.property('moduleId', moduleVersion.module.toString());
+                    expect(result).to.have.property('version', moduleVersion.version);
+                    expect(result).to.have.property('location', moduleVersion.location);
+                    expect(result).to.have.property('informations', moduleVersion.informations);
+                    done();
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                })
+        });
+
+    });
+
 });

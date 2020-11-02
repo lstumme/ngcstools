@@ -165,7 +165,22 @@ exports.updateModuleVersionInformations = async ({ moduleVersionId, location, in
     });
 };
 
-exports.getModuleVersion = async ({ toolVersionId }) => {
+exports.getModuleVersion = async ({ moduleVersionId }) => {
+    return ModuleVersion.findOne({ _id: moduleVersionId })
+        .then(moduleVersion => {
+            if (!moduleVersion) {
+                const error = new Error('Module version not found.')
+                error.statusCode = 404;
+                throw error;
+            }
+            return {
+                moduleVersionId: moduleVersion._id.toString(),
+                moduleId: moduleVersion.module.toString(),
+                location: moduleVersion.location,
+                version: moduleVersion.version,
+                informations: moduleVersion.informations
+            };
+        });
 };
 
 exports.getModuleVersions = async ({ toolId, page, perPage }) => {
