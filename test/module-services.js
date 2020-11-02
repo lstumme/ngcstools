@@ -97,7 +97,7 @@ describe('Module Services', function () {
 
     });
 
-    describe('#deleteTool function', function () {
+    describe('#deleteModule function', function () {
         let module;
         before(async () => {
             await dbHandler.connect();
@@ -158,5 +158,102 @@ describe('Module Services', function () {
                 })
         });
     });
+
+    describe('#updateModuleInformations function', function () {
+        let module;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            const tool = new Tool({
+                name: 'tool1',
+            });
+            await tool.save();
+
+            module = new Module({
+                name: 'module1',
+                tool: tool._id.toString()
+            })
+            module = await module.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if module to update is not found', function (done) {
+            const id = new ObjectId();
+            const params = { moduleId: id.toString() };
+            moduleServices.updateModuleInformations(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `Could not find module.`);
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should update Module vendor if vendor is provided', function (done) {
+            const params = { moduleId: module._id.toString(), vendor: 'Vendor' };
+            moduleServices.updateModuleInformations(params)
+                .then(result => {
+                    expect(result).to.have.property('vendor', params.vendor);
+                    Module.findOne({ _id: module._id })
+                        .then(newModule => {
+                            expect(newModule).to.have.property('vendor', params.vendor);
+                            done();
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                });
+        });
+
+        it('should update Module informations if informations is provided', function (done) {
+            const params = { moduleId: module._id.toString(), informations: 'informations' };
+            moduleServices.updateModuleInformations(params)
+                .then(result => {
+                    expect(result).to.have.property('informations', params.informations);
+                    Module.findOne({ _id: module._id })
+                        .then(newModule => {
+                            expect(newModule).to.have.property('informations', params.informations);
+                            done();
+                        })
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                });
+        });
+
+        it('should do nothing if no awaited argument is defined', function (done) {
+            const params = { moduleId: module._id.toString(), falseparam: 'falseparam' };
+            moduleServices.updateModuleInformations(params)
+                .then(result => {
+                    Module.findOne({ name: 'module1' })
+                        .then(newModule => {
+                            expect(newModule).not.to.have.own.property('vendor');
+                            expect(newModule).not.to.have.own.property('informations');
+                            expect(newModule).not.to.haveOwnProperty('falseparam');
+                            done();
+                        })
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                });
+        });
+    });
+
+
 
 });

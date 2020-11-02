@@ -45,7 +45,25 @@ exports.deleteModule = async ({ moduleId }) => {
     });
 };
 
-exports.updateModuleInformations = ({ toolId, vendor }) => {
+exports.updateModuleInformations = ({ moduleId, vendor, informations }) => {
+    return Module.findOne({ _id: moduleId }).then(module => {
+        if (!module) {
+            const error = new Error('Could not find module.')
+            error.statusCode = 404;
+            throw error;
+        }
+        if (vendor) module.vendor = vendor;
+        if (informations) module.informations = informations
+        return module.save()
+            .then(m => {
+                return {
+                    moduleId: m._id.toString(),
+                    toolId: m.tool.toString(),
+                    vendor: m.vendor,
+                    informations: m.informations
+                }
+            })
+    });
 };
 
 exports.getModule = async ({ toolId }) => {

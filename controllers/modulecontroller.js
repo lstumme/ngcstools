@@ -44,12 +44,13 @@ exports.deleteModule = async (req, res, next) => {
 exports.updateModuleInformations = async (req, res, next) => {
     const moduleId = req.body.moduleId;
     const vendor = req.body.vendor;
+    const informations = req.body.informations;
     if (!moduleId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
         throw error;
     }
-    return moduleServices.updateModuleInformations({ moduleId, vendor })
+    return moduleServices.updateModuleInformations({ moduleId, vendor, informations })
         .then(response => {
             res.status(200).json({ message: 'Module updated', data: response });
             return response;

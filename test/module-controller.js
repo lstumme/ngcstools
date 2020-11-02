@@ -256,6 +256,7 @@ describe('Module Controller', function () {
                 body: {
                     moduleId: 'abc',
                     vendor: 'vendor',
+                    informations: 'informations'
                 }
             }
             const res = {
