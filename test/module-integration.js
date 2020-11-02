@@ -246,4 +246,64 @@ describe('Module integration', function () {
 
 
     });
+
+    describe('#deleteModuleVersion', function (done) {
+        let moduleVersion;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            tool = new Tool({
+                name: 'tool1'
+            });
+            tool = await tool.save();
+
+            const module = new Module({
+                name: 'module1',
+                tool: tool._id.toString()
+            });
+            await module.save();
+
+            moduleVersion = new ModuleVersion({
+                module: module._id,
+                version: '1.0.0'
+            });
+            moduleVersion = await moduleVersion.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should return an object if moduleVersion deletion succeed', function (done) {
+            const req = {
+                body: { moduleVersionId: moduleVersion._id.toString() }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            moduleController.deleteModuleVersion(req, res, () => { })
+                .then(result => {
+                    expect(res).to.have.property('statusCode', 201);
+                    expect(res.jsonObject).to.have.property('message', 'Module version deleted');
+                    expect(res.jsonObject.data).to.have.property('moduleVersionId', moduleVersion._id.toString());
+                    done();
+                })
+        });
+    });
 });
