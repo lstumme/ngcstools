@@ -308,6 +308,71 @@ describe('Module integration', function () {
     });
 
     describe('#updateModuleVersionInformations', function (done) {
+        let moduleVersion;
+        let module;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            tool = new Tool({
+                name: 'tool1'
+            });
+            tool = await tool.save();
+
+            module = new Module({
+                name: 'module1',
+                tool: tool._id.toString()
+            });
+            module = await module.save();
+
+            moduleVersion = new ModuleVersion({
+                module: module._id,
+                version: '1.0.0'
+            });
+            moduleVersion = await moduleVersion.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should return an object if update succeed', function (done) {
+            const req = {
+                body: {
+                    moduleVersionId: moduleVersion._id.toString(),
+                    location: 'location',
+                    informations: 'informations'
+                }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            moduleController.updateModuleVersionInformations(req, res, () => { }).then(result => {
+                expect(res).to.have.property('statusCode', 200);
+                expect(res.jsonObject).to.have.property('message', 'Module version updated');
+                expect(res.jsonObject.data).to.have.property('moduleVersionId', moduleVersion._id.toString());
+                expect(res.jsonObject.data).to.have.property('informations', 'informations');
+                expect(res.jsonObject.data).to.have.property('location', 'location');
+                expect(res.jsonObject.data).to.have.property('moduleId', module._id.toString());
+                done();
+            });
+        });
+
 
     });
 });

@@ -158,7 +158,7 @@ exports.updateModuleVersionInformations = async ({ moduleVersionId, location, in
                 return {
                     moduleVersionId: m._id.toString(),
                     moduleId: m.module.toString(),
-                    location: m.vendor,
+                    location: m.location,
                     informations: m.informations
                 }
             })

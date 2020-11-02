@@ -625,7 +625,7 @@ describe('Module Services', function () {
             };
             moduleServices.updateModuleVersionInformations(params)
                 .then(result => {
-                    expect(result).to.have.property('location', params.vendor);
+                    expect(result).to.have.property('location', params.location);
                     ModuleVersion.findOne({ _id: moduleVersion._id })
                         .then(newModuleVersion => {
                             expect(newModuleVersion).to.have.property('location', params.location);
