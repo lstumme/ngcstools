@@ -103,7 +103,31 @@ exports.getModules = async ({ toolId, page, perPage }) => {
         });
 };
 
-exports.createModuleVersion = ({ toolId, version }) => {
+exports.createModuleVersion = ({ moduleId, version }) => {
+    return ModuleVersion.findOne({ module: moduleId, version: version }).then(existingModuleVersion => {
+        if (existingModuleVersion) {
+            const error = new Error(`Module version ${version} already exists for this module`);
+            error.statusCode = 409;
+            throw error;
+        }
+        return Module.findOne({ _id: moduleId })
+            .then(existingModule => {
+                if (!existingModule) {
+                    const error = new Error('Specified module does not exist');
+                    error.statusCode = 409;
+                    throw error;
+                }
+                const moduleVersion = new ModuleVersion({ module: moduleId, version });
+                return moduleVersion.save()
+                    .then(newModuleVersion => {
+                        return {
+                            moduleVersionId: newModuleVersion._id.toString(),
+                            moduleId: newModuleVersion.module.toString(),
+                            version: newModuleVersion.version.toString()
+                        };
+                    })
+            })
+    });
 };
 
 exports.deleteModuleVersion = ({ toolVersionId }) => {

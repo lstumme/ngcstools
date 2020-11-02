@@ -404,7 +404,101 @@ describe('Module Services', function () {
                     done();
                 })
         });
+    });
+
+    describe('#createModuleVersion function', function () {
+        let module;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            tool = new Tool({
+                name: 'tool1'
+            });
+            tool = await tool.save();
+
+            module = new Module({
+                name: 'module1',
+                tool: tool._id.toString()
+            });
+            await module.save();
+
+            const moduleVersion = new ModuleVersion({
+                module: module._id,
+                version: '1.0.0'
+            });
+            await moduleVersion.save();
+
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if a moduleVersion with given version already exists for specified module', function (done) {
+            const params = {
+                moduleId: module._id.toString(),
+                version: '1.0.0'
+            };
+            moduleServices.createModuleVersion(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `Module version ${params.version} already exists for this module`);
+                    expect(err).to.have.property('statusCode', 409);
+                    done();
+                })
+        });
+
+        it('should throw an error if a specified tool does not exist', function (done) {
+            const params = {
+                moduleId: (new ObjectId()).toString(),
+                version: '2.0.0'
+            };
+            moduleServices.createModuleVersion(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `Specified module does not exist`);
+                    expect(err).to.have.property('statusCode', 409);
+                    done();
+                })
+
+        })
+
+        it('should create a module version', function (done) {
+            const params = {
+                moduleId: module._id.toString(),
+                version: '2.0.0'
+            };
+            moduleServices.createModuleVersion(params)
+                .then(result => {
+                    expect(result).to.haveOwnProperty('moduleVersionId');
+                    expect(result).to.have.property('moduleId', params.moduleId);
+                    expect(result).to.have.property('version', params.version);
+
+                    ModuleVersion.findOne({ _id: result.moduleVersionId })
+                        .then(newModuleVersion => {
+                            if (!newModuleVersion) {
+                                assert.fail('Module not created');
+                            }
+                            done();
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('ModuleService Error');
+                })
+        });
 
     });
+
 
 });
