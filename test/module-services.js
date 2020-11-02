@@ -2,7 +2,6 @@ const { expect, assert } = require('chai');
 const { ObjectId, ObjectID } = require('mongodb');
 const dbHandler = require('./db-handler');
 const moduleServices = require('../services/moduleservices');
-const { User } = require('ngcsusers');
 const Tool = require('../model/tool');
 const ToolVersion = require('../model/toolversion');
 const Module = require('../model/module');
@@ -10,7 +9,7 @@ const ModuleVersion = require('../model/moduleversion');
 const { Group } = require('ngcsgroups');
 
 describe('Module Services', function () {
-    describe('#createMOdule function', function () {
+    describe('#createModule function', function () {
         let tool;
         before(async () => {
             await dbHandler.connect();
@@ -97,4 +96,67 @@ describe('Module Services', function () {
         });
 
     });
+
+    describe('#deleteTool function', function () {
+        let module;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            const tool = new Tool({
+                name: 'tool1',
+            });
+            await tool.save();
+
+            module = new Module({
+                name: 'module1',
+                tool: tool._id.toString()
+            })
+            module = await module.save()
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if module to delete is not found', function (done) {
+            const id = new ObjectId();
+            const params = { moduleId: id.toString() };
+            moduleServices.deleteModule(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `Could not find module.`);
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should delete module if module exists', function (done) {
+            const params = { moduleId: module._id.toString() };
+            moduleServices.deleteModule(params)
+                .then(result => {
+                    Module.countDocuments({}, function (err, count) {
+                        if (err) {
+                            assert.fail('Database Error');
+                        }
+                        expect(count).to.equal(0);
+                        done();
+                    });
+                    expect(result).to.have.property('moduleId', module._id.toString());
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                })
+        });
+    });
+
 });

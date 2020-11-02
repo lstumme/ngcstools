@@ -31,7 +31,18 @@ exports.createModule = async ({ name, toolId }) => {
     });
 };
 
-exports.deleteModule = async ({ toolId }) => {
+exports.deleteModule = async ({ moduleId }) => {
+    return Module.findOne({ _id: moduleId }).then(module => {
+        if (!module) {
+            const error = new Error('Could not find module.')
+            error.statusCode = 404;
+            throw error;
+        }
+        return module.remove()
+            .then(m => {
+                return { moduleId: module._id.toString() };
+            })
+    });
 };
 
 exports.updateModuleInformations = ({ toolId, vendor }) => {
