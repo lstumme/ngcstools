@@ -81,7 +81,7 @@ describe('Module integration', function () {
 
             module = new Module({
                 name: 'module1',
-                tool: tool._id.toString()
+                toolId: tool._id.toString()
             })
             module = await module.save()
         });
@@ -137,7 +137,7 @@ describe('Module integration', function () {
 
             module = new Module({
                 name: 'module1',
-                tool: tool._id.toString()
+                toolId: tool._id.toString()
             })
             module = await module.save();
         });
@@ -197,12 +197,12 @@ describe('Module integration', function () {
 
             module = new Module({
                 name: 'module1',
-                tool: tool._id.toString()
+                toolId: tool._id.toString()
             });
             await module.save();
 
             const moduleVersion = new ModuleVersion({
-                module: module._id,
+                moduleId: module._id,
                 version: '1.0.0'
             });
             await moduleVersion.save();
@@ -265,12 +265,12 @@ describe('Module integration', function () {
 
             const module = new Module({
                 name: 'module1',
-                tool: tool._id.toString()
+                toolId: tool._id.toString()
             });
             await module.save();
 
             moduleVersion = new ModuleVersion({
-                module: module._id,
+                moduleId: module._id,
                 version: '1.0.0'
             });
             moduleVersion = await moduleVersion.save();
@@ -326,12 +326,12 @@ describe('Module integration', function () {
 
             module = new Module({
                 name: 'module1',
-                tool: tool._id.toString()
+                toolId: tool._id.toString()
             });
             module = await module.save();
 
             moduleVersion = new ModuleVersion({
-                module: module._id,
+                moduleId: module._id,
                 version: '1.0.0'
             });
             moduleVersion = await moduleVersion.save();

@@ -27,7 +27,7 @@ describe('Module Services', function () {
 
             const module = new Module({
                 name: 'module1',
-                tool: tool._id.toString()
+                toolId: tool._id.toString()
             });
             await module.save();
         });
@@ -115,7 +115,7 @@ describe('Module Services', function () {
 
             module = new Module({
                 name: 'module1',
-                tool: tool._id.toString()
+                toolId: tool._id.toString()
             })
             module = await module.save()
         });
@@ -177,7 +177,7 @@ describe('Module Services', function () {
 
             module = new Module({
                 name: 'module1',
-                tool: tool._id.toString()
+                toolId: tool._id.toString()
             })
             module = await module.save();
         });
@@ -272,7 +272,7 @@ describe('Module Services', function () {
 
             registeredModule = new Module({
                 name: 'module1',
-                tool: tool._id.toString(),
+                toolId: tool._id.toString(),
                 vendor: 'vendor1',
                 informations: 'informations1'
             });
@@ -299,7 +299,7 @@ describe('Module Services', function () {
             moduleServices.getModule({ moduleId: registeredModule._id.toString() })
                 .then(result => {
                     expect(result).to.have.property('moduleId', registeredModule._id.toString());
-                    expect(result).to.have.property('toolId', registeredModule.tool.toString());
+                    expect(result).to.have.property('toolId', registeredModule.toolId.toString());
                     expect(result).to.have.property('name', registeredModule.name);
                     expect(result).to.have.property('vendor', registeredModule.vendor);
                     expect(result).to.have.property('informations', registeredModule.informations);
@@ -340,13 +340,13 @@ describe('Module Services', function () {
                 if (i % 2 == 0) {
                     const module = new Module({
                         name: 'module' + i,
-                        tool: tool1._id
+                        toolId: tool1._id
                     });
                     await module.save();
                 } else {
                     const module = new Module({
                         name: 'module' + i,
-                        tool: tool2._id
+                        toolId: tool2._id
                     });
                     await module.save();
                 }
@@ -424,12 +424,12 @@ describe('Module Services', function () {
 
             module = new Module({
                 name: 'module1',
-                tool: tool._id.toString()
+                toolId: tool._id.toString()
             });
             await module.save();
 
             const moduleVersion = new ModuleVersion({
-                module: module._id,
+                moduleId: module._id,
                 version: '1.0.0'
             });
             await moduleVersion.save();
@@ -518,12 +518,12 @@ describe('Module Services', function () {
 
             const module = new Module({
                 name: 'module1',
-                tool: tool._id.toString()
+                toolId: tool._id.toString()
             });
             await module.save();
 
             moduleVersion = new ModuleVersion({
-                module: module._id,
+                moduleId: module._id,
                 version: '1.0.0'
             });
             moduleVersion = await moduleVersion.save();
@@ -586,12 +586,12 @@ describe('Module Services', function () {
 
             const module = new Module({
                 name: 'module1',
-                tool: tool._id.toString()
+                toolId: tool._id.toString()
             });
             await module.save();
 
             moduleVersion = new ModuleVersion({
-                module: module._id,
+                moduleId: module._id,
                 version: '1.0.0'
             });
             moduleVersion = await moduleVersion.save();
@@ -697,12 +697,12 @@ describe('Module Services', function () {
 
             const module = new Module({
                 name: 'module1',
-                tool: tool._id.toString()
+                toolId: tool._id.toString()
             });
             await module.save();
 
             moduleVersion = new ModuleVersion({
-                module: module._id,
+                moduleId: module._id,
                 version: '1.0.0',
                 location: 'location1',
                 informations: 'informations1'
@@ -730,7 +730,7 @@ describe('Module Services', function () {
             moduleServices.getModuleVersion({ moduleVersionId: moduleVersion._id.toString() })
                 .then(result => {
                     expect(result).to.have.property('moduleVersionId', moduleVersion._id.toString());
-                    expect(result).to.have.property('moduleId', moduleVersion.module.toString());
+                    expect(result).to.have.property('moduleId', moduleVersion.moduleId.toString());
                     expect(result).to.have.property('version', moduleVersion.version);
                     expect(result).to.have.property('location', moduleVersion.location);
                     expect(result).to.have.property('informations', moduleVersion.informations);
@@ -764,13 +764,13 @@ describe('Module Services', function () {
 
             module1 = new Module({
                 name: 'module1',
-                tool: tool1._id
+                toolId: tool1._id
             })
             module1 = await module1.save();
 
             module2 = new Module({
                 name: 'module2',
-                tool: tool1._id
+                toolId: tool1._id
             })
             module2 = await module2.save();
 
@@ -778,13 +778,13 @@ describe('Module Services', function () {
             for (let i = 0; i < 30; i++) {
                 if (i % 2 == 0) {
                     const moduleVersion = new ModuleVersion({
-                        module: module1._id,
+                        moduleId: module1._id,
                         version: i + '.0.0'
                     });
                     await moduleVersion.save();
                 } else {
                     const moduleVersion = new ModuleVersion({
-                        module: module2._id,
+                        moduleId: module2._id,
                         version: i + '.0.0'
                     });
                     await moduleVersion.save();

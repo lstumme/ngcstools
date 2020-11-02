@@ -339,7 +339,7 @@ describe('Tool Services', function () {
             tool2 = tool;
 
             const toolVersion = new ToolVersion({
-                tool: tool1._id,
+                toolId: tool1._id,
                 version: '1.0.0'
             });
             await toolVersion.save();
@@ -407,7 +407,7 @@ describe('Tool Services', function () {
                                 assert.fail('Tool not created');
                             }
                             expect(newTool).to.have.property('version', params.version);
-                            expect(newTool.tool.toString()).to.eql(tool1._id.toString());
+                            expect(newTool.toolId.toString()).to.eql(tool1._id.toString());
                             done();
                         })
                 })
@@ -437,7 +437,7 @@ describe('Tool Services', function () {
             await tool.save();
 
             const toolVersion = new ToolVersion({
-                tool: tool._id,
+                toolId: tool._id,
                 version: '1.0.0'
             });
             toolVersion1 = await toolVersion.save();
@@ -497,7 +497,7 @@ describe('Tool Services', function () {
             await tool.save();
 
             const toolVersion = new ToolVersion({
-                tool: tool._id,
+                toolId: tool._id,
                 version: '1.0.0'
             });
             toolVersion1 = await toolVersion.save();
@@ -571,7 +571,7 @@ describe('Tool Services', function () {
             await tool.save();
 
             const toolVersion = new ToolVersion({
-                tool: tool._id,
+                toolId: tool._id,
                 version: '1.0.0'
             });
             toolVersion1 = await toolVersion.save();
@@ -599,7 +599,7 @@ describe('Tool Services', function () {
                     expect(result).to.have.property('_id');
                     expect(result._id.toString()).to.equal(toolVersion1._id.toString());
                     //expect(result).to.have.own.property('tool');
-                    expect(result.tool.toString()).to.equal(toolVersion1.tool.toString());
+                    expect(result.toolId.toString()).to.equal(toolVersion1.toolId.toString());
                     expect(result).to.have.property('version', toolVersion1.version);
                     done();
                 })
@@ -637,13 +637,13 @@ describe('Tool Services', function () {
             for (let i = 0; i < 30; i++) {
                 if (i % 2 == 0) {
                     const toolVersion = new ToolVersion({
-                        tool: tool1._id.toString(),
+                        toolId: tool1._id.toString(),
                         version: i + '.0.0'
                     });
                     await toolVersion.save();
                 } else {
                     const toolVersion = new ToolVersion({
-                        tool: tool2._id.toString(),
+                        toolId: tool2._id.toString(),
                         version: i + '.0.0'
                     });
                     await toolVersion.save();
@@ -687,7 +687,7 @@ describe('Tool Services', function () {
                     expect(result).to.have.property('pageCount', 3);
                     expect(result).to.have.property('toolVersions').to.have.lengthOf(perPage);
                     for (let i = 0; i < perPage; i++) {
-                        expect(result.toolVersions[i].tool.toString()).to.equal(tool1._id.toString());
+                        expect(result.toolVersions[i].toolId.toString()).to.equal(tool1._id.toString());
                     }
                     done();
                 })
@@ -705,7 +705,7 @@ describe('Tool Services', function () {
                     expect(result).to.have.property('pageCount', 2);
                     expect(result).to.have.property('toolVersions').to.have.lengthOf(perPage);
                     for (let i = 0; i < perPage; i++) {
-                        expect(result.toolVersions[i].tool.toString()).to.equal(tool1._id.toString());
+                        expect(result.toolVersions[i].toolId.toString()).to.equal(tool1._id.toString());
                     }
                     done();
                 })

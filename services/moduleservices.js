@@ -18,12 +18,12 @@ exports.createModule = async ({ name, toolId }) => {
                     error.statusCode = 409;
                     throw error;
                 }
-                const module = new Module({ name, tool: toolId });
+                const module = new Module({ name, toolId });
                 return module.save()
                     .then(newModule => {
                         return {
                             moduleId: newModule._id.toString(),
-                            toolId: newModule.tool.toString(),
+                            toolId: newModule.toolId.toString(),
                             name: newModule.name
                         };
                     })
@@ -58,7 +58,7 @@ exports.updateModuleInformations = ({ moduleId, vendor, informations }) => {
             .then(m => {
                 return {
                     moduleId: m._id.toString(),
-                    toolId: m.tool.toString(),
+                    toolId: m.toolId.toString(),
                     vendor: m.vendor,
                     informations: m.informations
                 }
@@ -77,7 +77,7 @@ exports.getModule = async ({ moduleId }) => {
             return {
                 moduleId: module._id.toString(),
                 name: module.name,
-                toolId: module.tool.toString(),
+                toolId: module.toolId.toString(),
                 vendor: module.vendor,
                 informations: module.informations
             };
@@ -85,7 +85,7 @@ exports.getModule = async ({ moduleId }) => {
 };
 
 exports.getModules = async ({ toolId, page, perPage }) => {
-    return Module.countDocuments({ tool: toolId })
+    return Module.countDocuments({ toolId })
         .then(count => {
             const pageCount = Math.trunc(count / perPage) + (count % perPage > 0 ? 1 : 0);
             if (count <= perPage * (page - 1) || (perPage * (page - 1) < 0)) {
@@ -93,7 +93,7 @@ exports.getModules = async ({ toolId, page, perPage }) => {
                 error.statusCode = 400;
                 throw error;
             }
-            return Module.find({ tool: toolId }).skip((page - 1) * perPage).limit(perPage)
+            return Module.find({ toolId }).skip((page - 1) * perPage).limit(perPage)
                 .then(result => {
                     return {
                         modules: result,
@@ -104,7 +104,7 @@ exports.getModules = async ({ toolId, page, perPage }) => {
 };
 
 exports.createModuleVersion = ({ moduleId, version }) => {
-    return ModuleVersion.findOne({ module: moduleId, version: version }).then(existingModuleVersion => {
+    return ModuleVersion.findOne({ moduleId, version: version }).then(existingModuleVersion => {
         if (existingModuleVersion) {
             const error = new Error(`Module version ${version} already exists for this module`);
             error.statusCode = 409;
@@ -117,12 +117,12 @@ exports.createModuleVersion = ({ moduleId, version }) => {
                     error.statusCode = 409;
                     throw error;
                 }
-                const moduleVersion = new ModuleVersion({ module: moduleId, version });
+                const moduleVersion = new ModuleVersion({ moduleId, version });
                 return moduleVersion.save()
                     .then(newModuleVersion => {
                         return {
                             moduleVersionId: newModuleVersion._id.toString(),
-                            moduleId: newModuleVersion.module.toString(),
+                            moduleId: newModuleVersion.moduleId.toString(),
                             version: newModuleVersion.version.toString()
                         };
                     })
@@ -157,7 +157,7 @@ exports.updateModuleVersionInformations = async ({ moduleVersionId, location, in
             .then(m => {
                 return {
                     moduleVersionId: m._id.toString(),
-                    moduleId: m.module.toString(),
+                    moduleId: m.moduleId.toString(),
                     location: m.location,
                     informations: m.informations
                 }
@@ -175,7 +175,7 @@ exports.getModuleVersion = async ({ moduleVersionId }) => {
             }
             return {
                 moduleVersionId: moduleVersion._id.toString(),
-                moduleId: moduleVersion.module.toString(),
+                moduleId: moduleVersion.moduleId.toString(),
                 location: moduleVersion.location,
                 version: moduleVersion.version,
                 informations: moduleVersion.informations
@@ -184,7 +184,7 @@ exports.getModuleVersion = async ({ moduleVersionId }) => {
 };
 
 exports.getModuleVersions = async ({ moduleId, page, perPage }) => {
-    return ModuleVersion.countDocuments({ module: moduleId })
+    return ModuleVersion.countDocuments({ moduleId: moduleId })
         .then(count => {
             const pageCount = Math.trunc(count / perPage) + (count % perPage > 0 ? 1 : 0);
             if (count <= perPage * (page - 1) || (perPage * (page - 1) < 0)) {
@@ -192,7 +192,7 @@ exports.getModuleVersions = async ({ moduleId, page, perPage }) => {
                 error.statusCode = 400;
                 throw error;
             }
-            return ModuleVersion.find({ module: moduleId }).skip((page - 1) * perPage).limit(perPage)
+            return ModuleVersion.find({ moduleId: moduleId }).skip((page - 1) * perPage).limit(perPage)
                 .then(result => {
                     return {
                         moduleVersions: result,

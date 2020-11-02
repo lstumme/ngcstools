@@ -75,7 +75,7 @@ exports.getTools = async ({ page, perPage }) => {
 };
 
 exports.createToolVersion = ({ toolId, version }) => {
-    return ToolVersion.findOne({ tool: toolId, version: version })
+    return ToolVersion.findOne({ toolId: toolId, version: version })
         .then(existingToolVersion => {
             if (existingToolVersion) {
                 const error = new Error(`ToolVersion already exists`);
@@ -89,7 +89,7 @@ exports.createToolVersion = ({ toolId, version }) => {
                         error.statusCode = 404;
                         throw error;
                     }
-                    const toolVersion = new ToolVersion({ tool: toolId, version: version });
+                    const toolVersion = new ToolVersion({ toolId, version });
                     return toolVersion.save()
                         .then(newToolVersion => {
                             return { message: 'ToolVersion created', toolVersionId: newToolVersion._id };
@@ -143,7 +143,7 @@ exports.getToolVersions = async ({ toolId, page, perPage }) => {
                 error.statusCode = 404;
                 throw error;
             }
-            return ToolVersion.countDocuments({ tool: toolId })
+            return ToolVersion.countDocuments({ toolId })
                 .then(count => {
                     const pageCount = Math.trunc(count / perPage) + (count % perPage > 0 ? 1 : 0);
                     if (count <= perPage * (page - 1) || (perPage * (page - 1) < 0)) {
@@ -151,7 +151,7 @@ exports.getToolVersions = async ({ toolId, page, perPage }) => {
                         error.statusCode = 400;
                         throw error;
                     }
-                    return ToolVersion.find({ tool: toolId }).skip((page - 1) * perPage).limit(perPage)
+                    return ToolVersion.find({ toolId }).skip((page - 1) * perPage).limit(perPage)
                         .then(result => {
                             return {
                                 toolVersions: result,
