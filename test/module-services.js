@@ -314,7 +314,7 @@ describe('Module Services', function () {
 
     });
 
-    describe('#getTools function', function () {
+    describe('#getModules function', function () {
         let tool1;
         let tool2;
         before(async () => {
@@ -370,10 +370,10 @@ describe('Module Services', function () {
         });
 
         it('should return an object contianing the required data and the number of pages', function (done) {
-            const perPage = 10;
+            const perPage = 5;
             moduleServices.getModules({ toolId: tool1._id.toString(), page: 1, perPage: perPage })
                 .then(result => {
-                    expect(result).to.have.property('pageCount', 2);
+                    expect(result).to.have.property('pageCount', 3);
                     expect(result).to.have.property('modules').to.have.lengthOf(perPage);
                     for (let i = 0; i < perPage; i++) {
                         expect(result.modules[i]).to.have.property('name', 'module' + (i * 2));
@@ -743,6 +743,106 @@ describe('Module Services', function () {
                 })
         });
 
+    });
+
+    describe('#getModuleVersions function', function () {
+        let module1;
+        let module2;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            let tool1 = new Tool({
+                name: 'tool1'
+            });
+            tool1 = await tool1.save();
+
+            module1 = new Module({
+                name: 'module1',
+                tool: tool1._id
+            })
+            module1 = await module1.save();
+
+            module2 = new Module({
+                name: 'module2',
+                tool: tool1._id
+            })
+            module2 = await module2.save();
+
+
+            for (let i = 0; i < 30; i++) {
+                if (i % 2 == 0) {
+                    const moduleVersion = new ModuleVersion({
+                        module: module1._id,
+                        version: i + '.0.0'
+                    });
+                    await moduleVersion.save();
+                } else {
+                    const moduleVersion = new ModuleVersion({
+                        module: module2._id,
+                        version: i + '.0.0'
+                    });
+                    await moduleVersion.save();
+                }
+            }
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if range out of bounds', function (done) {
+            moduleServices.getModuleVersions({ ModuleId: module1._id.toString(), page: 3, perPage: 10 })
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', 'Pagination out of bounds.');
+                    expect(err).to.have.property('statusCode', 400);
+                    done();
+                })
+        });
+
+        it('should return an object contianing the required data and the number of pages', function (done) {
+            const perPage = 5;
+            moduleServices.getModuleVersions({ moduleId: module1._id.toString(), page: 1, perPage: perPage })
+                .then(result => {
+                    expect(result).to.have.property('pageCount', 3);
+                    expect(result).to.have.property('moduleVersions').to.have.lengthOf(perPage);
+                    for (let i = 0; i < perPage; i++) {
+                        expect(result.moduleVersions[i]).to.have.property('version', (i * 2) + '.0.0');
+                    }
+                    done();
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                })
+        });
+
+        it('should return an object contianing the required data and the number of pages 2', function (done) {
+            const perPage = 7;
+            moduleServices.getModuleVersions({ moduleId: module1._id.toString(), page: 1, perPage: perPage })
+                .then(result => {
+                    expect(result).to.have.property('pageCount', 3);
+                    expect(result).to.have.property('moduleVersions').to.have.lengthOf(perPage);
+                    for (let i = 0; i < perPage; i++) {
+                        expect(result.moduleVersions[i]).to.have.property('version', (i * 2) + '.0.0');
+                    }
+                    done();
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                })
+        });
     });
 
 });
