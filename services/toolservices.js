@@ -13,7 +13,10 @@ exports.createTool = async ({ name }) => {
         const tool = new Tool({ name });
         return tool.save()
             .then(newTool => {
-                return { toolId: newTool._id };
+                return {
+                    toolId: newTool._id.toString(),
+                    name: newTool.name
+                };
             })
     });
 };
@@ -25,11 +28,13 @@ exports.deleteTool = async ({ toolId }) => {
             error.statusCode = 404;
             throw error;
         }
-        return { toolId: tool.remove()._id };
+        return tool.remove().then(t => {
+            return { toolId: tool._id.toString() };
+        })
     });
 };
 
-exports.updateToolInformations = ({ toolId, vendor }) => {
+exports.updateToolInformations = ({ toolId, vendor, informations }) => {
     return Tool.findOne({ _id: toolId }).then(tool => {
         if (!tool) {
             const error = new Error('Could not find tool.')
@@ -37,8 +42,16 @@ exports.updateToolInformations = ({ toolId, vendor }) => {
             throw error;
         }
         const params = {}
-        if (vendor) params.vendor = vendor;
-        return tool.updateOne({ $set: params });
+        if (vendor) tool.vendor = vendor;
+        if (informations) tool.informations = informations;
+        return tool.save().then(t => {
+            return {
+                toolId: t._id.toString(),
+                name: t.name,
+                vendor: t.vendor,
+                informations: t.informations
+            }
+        });
     });
 };
 
@@ -69,7 +82,6 @@ exports.getTools = async ({ page, perPage }) => {
                         tools: result,
                         pageCount: pageCount
                     };
-
                 })
         });
 };
@@ -91,8 +103,12 @@ exports.createToolVersion = ({ toolId, version }) => {
                     }
                     const toolVersion = new ToolVersion({ toolId, version });
                     return toolVersion.save()
-                        .then(newToolVersion => {
-                            return { toolVersionId: newToolVersion._id };
+                        .then(tv => {
+                            return {
+                                toolVersionId: tv._id.toString(),
+                                toolId: tv.toolId.toString(),
+                                version: tv.version
+                            };
                         })
                 })
         })
@@ -105,11 +121,15 @@ exports.deleteToolVersion = ({ toolVersionId }) => {
             error.statusCode = 404;
             throw error;
         }
-        return { toolVersionId: toolVersion.remove()._id };
+        return toolVersion.remove().then(tv => {
+            return {
+                toolVersionId: toolVersion._id.toString()
+            }
+        })
     });
 };
 
-exports.updateToolVersionInformations = async ({ toolVersionId, location }) => {
+exports.updateToolVersionInformations = async ({ toolVersionId, location, informations }) => {
     return ToolVersion.findOne({ _id: toolVersionId }).then(toolVersion => {
         if (!toolVersion) {
             const error = new Error('Could not find toolVersion.')
@@ -117,8 +137,17 @@ exports.updateToolVersionInformations = async ({ toolVersionId, location }) => {
             throw error;
         }
         const params = {}
-        if (location) params.location = location;
-        return toolVersion.updateOne({ $set: params });
+        if (location) toolVersion.location = location;
+        if (informations) toolVersion.informations = informations;
+        return toolVersion.save().then(t => {
+            return {
+                toolVersionId: t._id.toString(),
+                toolId: t.toolId.toString(),
+                version: t.version,
+                location: t.location,
+                informations
+            }
+        })
     });
 
 };

@@ -44,12 +44,13 @@ exports.deleteTool = async (req, res, next) => {
 exports.updateToolInformations = async (req, res, next) => {
     const toolId = req.body.toolId;
     const vendor = req.body.vendor;
-    if (!toolId || !vendor) {
+    const informations = req.body.informations;
+    if (!toolId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
         throw error;
     }
-    return toolServices.updateToolInformations({ toolId, vendor })
+    return toolServices.updateToolInformations({ toolId, vendor, informations })
         .then(response => {
             res.status(200).json({ message: 'Tool updated', data: response });
             return response;
@@ -149,12 +150,13 @@ exports.deleteToolVersion = async (req, res, next) => {
 exports.updateToolVersionInformations = async (req, res, next) => {
     const toolVersionId = req.body.toolVersionId;
     const location = req.body.location;
-    if (!toolVersionId || !location) {
+    const informations = req.body.informations;
+    if (!toolVersionId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
         throw error;
     }
-    return toolServices.updateToolVersionInformations({ toolVersionId, location })
+    return toolServices.updateToolVersionInformations({ toolVersionId, location, informations })
         .then(response => {
             res.status(200).json({ message: 'Tool version updated', data: response });
             return response;

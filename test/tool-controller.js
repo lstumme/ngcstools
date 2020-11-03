@@ -229,23 +229,6 @@ describe('Tool Controller', function () {
                 });
         });
 
-        it('should throw an error if no vendor parameter specified', function (done) {
-            const req = {
-                body: {
-                    toolId: 'abc'
-                }
-            }
-            toolController.updateToolInformations(req, {}, () => { })
-                .then(response => {
-                    assert.fail('updateToolInformations error');
-                    done();
-                })
-                .catch(err => {
-                    expect(err).to.be.an('error').to.have.property('statusCode', 400);
-                    done();
-                });
-        });
-
         it('should return an object if update succeed', function (done) {
             const req = {
                 body: {
@@ -786,23 +769,6 @@ describe('Tool Controller', function () {
                 })
                 .catch(err => {
                     expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
-        });
-
-        it('should throw an error if no location parameter specified', function (done) {
-            const req = {
-                body: {
-                    toolVersionId: 'abc'
-                }
-            }
-            toolController.updateToolVersionInformations(req, {}, () => { })
-                .then(response => {
-                    assert.fail('updateToolInformations error');
-                    done();
-                })
-                .catch(err => {
-                    expect(err).to.be.an('error').to.have.property('statusCode', 400);
                     done();
                 });
         });
