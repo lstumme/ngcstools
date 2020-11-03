@@ -18,3 +18,4 @@ const initRouter = () => {
     router.get('getModuleVersion:versionId', isAuth, moduleController.getToolVersion);
     router.get('/getModuleVersions', isAuth, toolContoller.getToolVersions);
 };
+module.exports = initRouter;
