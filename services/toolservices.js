@@ -13,7 +13,7 @@ exports.createTool = async ({ name }) => {
         const tool = new Tool({ name });
         return tool.save()
             .then(newTool => {
-                return { message: 'Tool created', toolId: newTool._id };
+                return { toolId: newTool._id };
             })
     });
 };
@@ -92,7 +92,7 @@ exports.createToolVersion = ({ toolId, version }) => {
                     const toolVersion = new ToolVersion({ toolId, version });
                     return toolVersion.save()
                         .then(newToolVersion => {
-                            return { message: 'ToolVersion created', toolVersionId: newToolVersion._id };
+                            return { toolVersionId: newToolVersion._id };
                         })
                 })
         })

@@ -45,7 +45,6 @@ describe('Tool Services', function () {
             const params = { name: 'tool2' };
             toolServices.createTool(params)
                 .then(result => {
-                    expect(result).to.have.property('message', `Tool created`);
                     expect(result).to.have.property('toolId');
                     Tool.findOne({ 'name': params.name })
                         .then(newTool => {
@@ -379,7 +378,6 @@ describe('Tool Services', function () {
             const params = { toolId: tool2._id, version: '1.0.0' };
             toolServices.createToolVersion(params)
                 .then(result => {
-                    expect(result).to.have.property('message', `ToolVersion created`);
                     expect(result).to.have.property('toolVersionId');
                     ToolVersion.findOne({ '_id': result.toolVersionId })
                         .then(newTool => {
@@ -399,7 +397,6 @@ describe('Tool Services', function () {
             const params = { toolId: tool1._id, version: '2.0.0' };
             toolServices.createToolVersion(params)
                 .then(result => {
-                    expect(result).to.have.property('message', `ToolVersion created`);
                     expect(result).to.have.property('toolVersionId');
                     ToolVersion.findOne({ '_id': result.toolVersionId })
                         .then(newTool => {
