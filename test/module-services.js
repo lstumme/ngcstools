@@ -1,12 +1,10 @@
 const { expect, assert } = require('chai');
-const { ObjectId, ObjectID } = require('mongodb');
-const dbHandler = require('./db-handler');
+const { ObjectId } = require('mongodb');
+const { dbHandler } = require('ngcshelpers');
 const moduleServices = require('../services/moduleservices');
 const Tool = require('../model/tool');
-const ToolVersion = require('../model/toolversion');
 const Module = require('../model/module');
 const ModuleVersion = require('../model/moduleversion');
-const { Group } = require('ngcsgroups');
 
 describe('Module Services', function () {
     describe('#createModule function', function () {

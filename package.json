@@ -25,6 +25,7 @@
     "mongodb": "^3.6.2",
     "mongoose": "^5.10.11",
     "ngcsgroups": "git+https://github.com/lstumme/ngcsgroups.git",
+    "ngcshelpers": "git+https://github.com/lstumme/ngcshelpers.git",
     "ngcsusers": "git+https://github.com/lstumme/ngcsusers.git"
   },
   "devDependencies": {

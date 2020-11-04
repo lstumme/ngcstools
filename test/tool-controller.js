@@ -1,6 +1,5 @@
 const { expect, assert } = require('chai');
 const sinon = require('sinon');
-const dbHandler = require('./db-handler');
 const toolController = require('../controllers/toolcontroller');
 const toolServices = require('../services/toolservices');
 

@@ -1,8 +1,8 @@
 const { expect, assert } = require('chai');
+const { dbHandler } = require('ngcshelpers');
 const environmentController = require('../controllers/environmentcontroller');
 const Tool = require('../model/tool');
 const Environment = require('../model/environment');
-const dbHandler = require('./db-handler');
 
 describe('Environment integration', function () {
     describe('#createEnvironment', function (done) {
@@ -163,10 +163,10 @@ describe('Environment integration', function () {
                 expect(res.jsonObject.data).to.have.property('informations', 'informations');
                 done();
             })
-            .catch(err=> {
-                console.log(err);
-                assert.fail(err.toString());
-            });
+                .catch(err => {
+                    console.log(err);
+                    assert.fail(err.toString());
+                });
         });
 
     });

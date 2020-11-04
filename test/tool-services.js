@@ -1,11 +1,11 @@
 const { expect, assert } = require('chai');
 const { ObjectId, ObjectID } = require('mongodb');
-const dbHandler = require('./db-handler');
-const toolServices = require('../services/toolservices');
+const { dbHandler } = require('ngcshelpers');
 const { User } = require('ngcsusers');
+const { Group } = require('ngcsgroups');
+const toolServices = require('../services/toolservices');
 const Tool = require('../model/tool');
 const ToolVersion = require('../model/toolversion');
-const { Group } = require('ngcsgroups');
 
 describe('Tool Services', function () {
     describe('#createTool function', function () {

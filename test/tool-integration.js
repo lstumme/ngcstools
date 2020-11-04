@@ -1,7 +1,7 @@
 const { expect, assert } = require('chai');
+const { dbHandler } = require('ngcshelpers');
 const toolController = require('../controllers/toolcontroller');
 const Tool = require('../model/tool');
-const dbHandler = require('./db-handler');
 const ToolVersion = require('../model/toolversion');
 
 describe('Tool integration', function () {

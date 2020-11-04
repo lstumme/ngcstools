@@ -1,8 +1,6 @@
-const { Group } = require('ngcsgroups');
 const Module = require('../model/module');
 const Tool = require('../model/tool');
 const ModuleVersion = require('../model/moduleversion');
-const ToolVersion = require('../model/toolversion');
 
 exports.createModule = async ({ name, toolId }) => {
     return Module.findOne({ name }).then(existingModule => {

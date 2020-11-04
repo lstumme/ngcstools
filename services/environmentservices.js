@@ -1,5 +1,5 @@
 const Environment = require('../model/environment');
-const idtostring = require('./dbutils');
+const { id2Strings } = require('ngcshelpers');
 
 exports.createEnvironment = async ({ name }) => {
     return Environment.findOne({ name }).then(existingEnvironment => {
@@ -46,7 +46,7 @@ exports.updateEnvironmentInformations = ({ environmentId, informations }) => {
             return {
                 environmentId: e._id.toString(),
                 name: e.name,
-                toolVersionsId: idtostring(e.toolVersionId),
+                toolVersionsId: id2Strings(e.toolVersionId),
                 informations: e.informations
             }
         });
