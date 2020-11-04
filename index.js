@@ -1,5 +1,5 @@
 module.exports = {
-    Tool: requires('./model/tool'),
+    Tool: require('./model/tool'),
     ToolVersion: require('./model/toolversion'),
     Module: require('./model/module'),
     ModuleVersion: require('./model/moduleversion'),

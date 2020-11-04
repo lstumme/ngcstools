@@ -12,4 +12,4 @@ const initRouter = () => {
     router.get('/getEnvironment:environmentId', isAuth, environmentController.getTool);
     router.get('/getEnvironments', isAuth, environmentController.getTools);
 };
-environment.exports = initRouter;
+module.exports = initRouter;
