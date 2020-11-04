@@ -12,7 +12,7 @@ const initRouter = () => {
     router.get('/getTool:toolId', isAuth, toolController.getTool);
     router.get('/getTools', isAuth, toolController.getTools);
 
-    router.post('/createToolVersion', iAuth, isToolManager, toolController.createToolVersion);
+    router.post('/createToolVersion', isAuth, isToolManager, toolController.createToolVersion);
     router.delete('/deleteToolVersion', isAuth, isToolManager, toolController.deleteToolVersion);
     router.put('/updateToolVersionInformations', isAuth, isToolManager, toolController.updateToolVersionInformations);
     router.get('getToolVersion:versionId', isAuth, toolController.getToolVersion);
