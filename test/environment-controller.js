@@ -248,7 +248,7 @@ describe('Environment Controller', function () {
                 }
             };
             environmentServices.updateEnvironmentInformations.returns(new Promise((resolve, reject) => {
-                resolve({ environmentId: 'abc', information });
+                resolve({ environmentId: 'abc', informations: req.body.informations });
             }));
 
             environmentController.updateEnvironmentInformations(req, res, () => { }).then(result => {
