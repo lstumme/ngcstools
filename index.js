@@ -7,5 +7,5 @@ module.exports = {
     ModuleRoutes: require('./routes/moduleroutes'),
     EnvironmentRoutes: require('./routes/environmentroutes'),
     isToolManager: require('./middleware/is-toolmanager'),
-    ToolDB: require('./config/initdb')
+    initToolsDB: require('./config/initdb')
 };
