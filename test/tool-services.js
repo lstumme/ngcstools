@@ -1,6 +1,6 @@
 const { expect, assert } = require('chai');
 const { ObjectId, ObjectID } = require('mongodb');
-const { dbHandler } = require('ngcshelpers');
+const { dbHandler } = require('ngcstesthelpers');
 const { User } = require('ngcsusers');
 const { Group } = require('ngcsgroups');
 const toolServices = require('../services/toolservices');

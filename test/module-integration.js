@@ -1,5 +1,5 @@
 const { expect, assert } = require('chai');
-const {dbHandler} = require('ngcshelpers');
+const {dbHandler} = require('ngcstesthelpers');
 const moduleController = require('../controllers/modulecontroller');
 const Tool = require('../model/tool');
 const Module = require('../model/module');

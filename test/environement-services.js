@@ -1,6 +1,6 @@
 const { expect, assert } = require('chai');
 const { ObjectId } = require('mongodb');
-const { dbHandler } = require('ngcshelpers');
+const { dbHandler } = require('ngcstesthelpers');
 const environmentServices = require('../services/environmentservices');
 const Environment = require('../model/environment');
 

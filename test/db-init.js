@@ -1,7 +1,7 @@
 const { expect, assert } = require('chai');
 const { Group } = require('ngcsgroups');
 const initdb = require('../config/initdb');
-const {dbHandler} = require('ngcshelpers');
+const {dbHandler} = require('ngcstesthelpers');
 
 describe('Databse Initialization', function () {
     before(async () => {
