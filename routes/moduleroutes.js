@@ -18,5 +18,7 @@ const initRouter = () => {
     router.put('/updateModuleInformations', isAuth, isToolManager, moduleController.updateModuleVersionInformations);
     router.get('/getModuleVersion:versionId', isAuth, moduleController.getModuleVersion);
     router.get('/getModuleVersions', isAuth, moduleController.getModuleVersions);
+
+    return router;
 };
 module.exports = initRouter;
