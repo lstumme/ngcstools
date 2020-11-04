@@ -14,6 +14,7 @@ const initRouter = () => {
 
     router.post('/createToolVersion', iAuth, isToolManager, toolController.createToolVersion);
     router.delete('/deleteToolVersion', isAuth, isToolManager, toolController.deleteToolVersion);
+    router.put('/updateToolVersionInformations', isAuth, isToolManager, toolController.updateToolVersionInformations);
     router.get('getToolVersion:versionId', isAuth, toolController.getToolVersion);
     router.get('/getToolVersions', isAuth, toolContoller.getToolVersions);
 

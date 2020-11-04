@@ -5,5 +5,6 @@ module.exports = {
     ModuleVersion: require('./model/moduleversion'),
     ToolRoutes: require('./routes/toolroutes'),
     ModuleRoutes: require('./routes/moduleroutes'),
+    EnvironmentRoutes: require('./routes/environmentroutes'),
     isToolManager: require('./middleware/is-toolmanager'),
 };

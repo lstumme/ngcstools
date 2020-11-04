@@ -10,12 +10,13 @@ const initRouter = () => {
     router.post('/createModule', isAuth, isToolManager, moduleController.createTool);
     router.delete('/deleteModule', isAuth, isToolManager, moduleController.deleteTool);
     router.put('/updateModuleInformations', isAuth, isToolManager, moduleController.updateToolInformations);
-    router.get('/getModule:ModuleId', isAuth, moduleController.getTool);
+    router.get('/getModule:moduleId', isAuth, moduleController.getTool);
     router.get('/getModules', isAuth, moduleController.getTools);
 
     router.post('/createModuleVersion', iAuth, isToolManager, moduleController.createToolVersion);
     router.delete('/deleteModuleVersion', isAuth, isToolManager, moduleController.deleteToolVersion);
-    router.get('getModuleVersion:versionId', isAuth, moduleController.getToolVersion);
+    router.put('/updateModuleInformations', isAuth, isToolManager, moduleController.updateModuleVersionInformations);
+    router.get('/getModuleVersion:versionId', isAuth, moduleController.getToolVersion);
     router.get('/getModuleVersions', isAuth, toolContoller.getToolVersions);
 };
 module.exports = initRouter;
