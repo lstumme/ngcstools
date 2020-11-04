@@ -7,16 +7,16 @@ const moduleController = require('../controllers/modulecontroller');
 const initRouter = () => {
     const router = express.Router();
 
-    router.post('/createModule', isAuth, isToolManager, moduleController.createTool);
-    router.delete('/deleteModule', isAuth, isToolManager, moduleController.deleteTool);
-    router.put('/updateModuleInformations', isAuth, isToolManager, moduleController.updateToolInformations);
-    router.get('/getModule:moduleId', isAuth, moduleController.getTool);
-    router.get('/getModules', isAuth, moduleController.getTools);
+    router.post('/createModule', isAuth, isToolManager, moduleController.createModule);
+    router.delete('/deleteModule', isAuth, isToolManager, moduleController.deleteModule);
+    router.put('/updateModuleInformations', isAuth, isToolManager, moduleController.updateModuleInformations);
+    router.get('/getModule:moduleId', isAuth, moduleController.getModule);
+    router.get('/getModules', isAuth, moduleController.getModules);
 
-    router.post('/createModuleVersion', iAuth, isToolManager, moduleController.createToolVersion);
-    router.delete('/deleteModuleVersion', isAuth, isToolManager, moduleController.deleteToolVersion);
+    router.post('/createModuleVersion', iAuth, isToolManager, moduleController.createModuleVersion);
+    router.delete('/deleteModuleVersion', isAuth, isToolManager, moduleController.deleteModuleVersion);
     router.put('/updateModuleInformations', isAuth, isToolManager, moduleController.updateModuleVersionInformations);
-    router.get('/getModuleVersion:versionId', isAuth, moduleController.getToolVersion);
-    router.get('/getModuleVersions', isAuth, toolContoller.getToolVersions);
+    router.get('/getModuleVersion:versionId', isAuth, moduleController.getModuleVersion);
+    router.get('/getModuleVersions', isAuth, moduleController.getModuleVersions);
 };
 module.exports = initRouter;
