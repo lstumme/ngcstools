@@ -14,31 +14,37 @@ describe('Module Controller', function () {
             moduleServices.createModule.restore();
         });
 
-        it('should throw an Error if name is not specified', function (done) {
+        it('should call next(error) if name is not specified', function (done) {
             const req = {
                 body: { toolId: 'toolId' }
             };
-            moduleController.createModule(req, {}, () => { })
+            moduleController.createModule(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('createModule Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 })
         });
 
-        it('should throw an Error if toolId is not specified', function (done) {
+        it('should call next(error) if toolId is not specified', function (done) {
             const req = {
                 body: { name: 'module1' }
             };
-            moduleController.createModule(req, {}, () => { })
+            moduleController.createModule(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('createModule Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 })
         });
 
@@ -88,15 +94,17 @@ describe('Module Controller', function () {
                 reject(new Error('module Service error'));
             }));
 
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            moduleController.createModule(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            moduleController.createModule(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('createModule Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -112,15 +120,17 @@ describe('Module Controller', function () {
                 error.statusCode = 400;
                 reject(error);
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            moduleController.createModule(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            moduleController.createModule(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('createModule Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
     });
 
@@ -133,19 +143,21 @@ describe('Module Controller', function () {
             moduleServices.deleteModule.restore();
         })
 
-        it('should throw an Error if moduleId is not specified', function (done) {
+        it('should call next(error) if moduleId is not specified', function (done) {
             const req = {
                 body: {}
             };
-            moduleController.deleteModule(req, {}, () => { })
+            moduleController.deleteModule(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('deleteModule Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 })
-
         });
 
         it('should return an object if module deletion succeed', function (done) {
@@ -190,15 +202,17 @@ describe('Module Controller', function () {
                 reject(new Error('module Service error'));
             }));
 
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            moduleController.deleteModule(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            moduleController.deleteModule(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('deleteModule Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -211,15 +225,17 @@ describe('Module Controller', function () {
                 error.statusCode = 400;
                 reject(error);
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            moduleController.deleteModule(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            moduleController.deleteModule(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('deleteModule Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
 
@@ -234,21 +250,23 @@ describe('Module Controller', function () {
             moduleServices.updateModuleInformations.restore();
         });
 
-        it('should throw an error if no moduleId specified', function (done) {
+        it('should call next(error) if no moduleId specified', function (done) {
             const req = {
                 body: {
                     vendor: 'vendor',
                 }
             }
-            moduleController.updateModuleInformations(req, {}, () => { })
+            moduleController.updateModuleInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('updateModuleInformations error');
-                    done();
+                    assert.fail('updateModuleInformations Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should return an object if update succeed', function (done) {
@@ -293,15 +311,17 @@ describe('Module Controller', function () {
             moduleServices.updateModuleInformations.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            moduleController.updateModuleInformations(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            moduleController.updateModuleInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('updateModuleInformations Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -316,15 +336,17 @@ describe('Module Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            moduleController.updateModuleInformations(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            moduleController.updateModuleInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('updateModuleInformations Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
     });
@@ -338,20 +360,22 @@ describe('Module Controller', function () {
             moduleServices.getModule.restore();
         });
 
-        it('should throw an error if no moduleId specified', function (done) {
+        it('should call next(error) if no moduleId specified', function (done) {
             const req = {
                 body: {
                 }
             }
-            moduleController.getModule(req, {}, () => { })
+            moduleController.getModule(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getModule Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should return an object if request succeed', function (done) {
@@ -392,15 +416,18 @@ describe('Module Controller', function () {
             moduleServices.getModule.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            moduleController.getModule(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            moduleController.getModule(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getModule Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
+
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -414,15 +441,18 @@ describe('Module Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            moduleController.getModule(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            moduleController.getModule(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getModule Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
+
         });
     });
 
@@ -435,58 +465,65 @@ describe('Module Controller', function () {
             moduleServices.getModules.restore();
         });
 
-        it('should throw an error if no toolId specified', function (done) {
+        it('should call next(err) if no toolId specified', function (done) {
             const req = {
                 body: {
                     page: 1,
                     perPage: 20
                 }
             }
-            moduleController.getModules(req, {}, () => { })
+            moduleController.getModules(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getModules Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
+
         });
 
-        it('should throw an error if no page specified', function (done) {
+        it('should call next(error) if no page specified', function (done) {
             const req = {
                 body: {
                     toolId: 'toolId',
                     perPage: 20
                 }
             }
-            moduleController.getModules(req, {}, () => { })
+            moduleController.getModules(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getModules Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
-        it('should throw an error if no perPage specified', function (done) {
+        it('should call next(error) if no perPage specified', function (done) {
             const req = {
                 body: {
                     toolId: 'toolId',
                     page: 1
                 }
             }
-            moduleController.getModules(req, {}, () => { })
+            moduleController.getModules(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getModules Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
 
@@ -536,15 +573,17 @@ describe('Module Controller', function () {
             moduleServices.getModules.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            moduleController.getModules(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            moduleController.getModules(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getModules Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -560,15 +599,17 @@ describe('Module Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            moduleController.getModules(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            moduleController.getModules(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getModules Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
     });
@@ -582,35 +623,41 @@ describe('Module Controller', function () {
             moduleServices.createModuleVersion.restore();
         });
 
-        it('should throw an Error if moduleId is not specified', function (done) {
+        it('should call next(error) if moduleId is not specified', function (done) {
             const req = {
                 body: {
                     version: '1.0.0'
                 }
             };
-            moduleController.createModuleVersion(req, {}, () => { })
+            moduleController.createModuleVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('createModuleVersion Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 })
         });
 
-        it('should throw an Error if version is not specified', function (done) {
+        it('should call next(err) if version is not specified', function (done) {
             const req = {
                 body: {
                     moduleId: 'module1'
                 }
             };
-            moduleController.createModuleVersion(req, {}, () => { })
+            moduleController.createModuleVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('createModuleVersion Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 })
         });
 
@@ -660,15 +707,17 @@ describe('Module Controller', function () {
                 reject(new Error('module Service error'));
             }));
 
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            moduleController.createModuleVersion(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            moduleController.createModuleVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('createModuleVersion Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -684,15 +733,17 @@ describe('Module Controller', function () {
                 error.statusCode = 400;
                 reject(error);
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            moduleController.createModuleVersion(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            moduleController.createModuleVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('createModuleVersion Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
     });
 
@@ -705,19 +756,21 @@ describe('Module Controller', function () {
             moduleServices.deleteModuleVersion.restore();
         })
 
-        it('should throw an Error if moduleVersionId is not specified', function (done) {
+        it('should call next(error) if moduleVersionId is not specified', function (done) {
             const req = {
                 body: {}
             };
-            moduleController.deleteModuleVersion(req, {}, () => { })
+            moduleController.deleteModuleVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('deleteModuleVersion Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 })
-
         });
 
         it('should return an object if moduleVersion deletion succeed', function (done) {
@@ -761,15 +814,17 @@ describe('Module Controller', function () {
                 reject(new Error('module Service error'));
             }));
 
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            moduleController.deleteModuleVersion(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            moduleController.deleteModuleVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('deleteModuleVersion Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -782,15 +837,17 @@ describe('Module Controller', function () {
                 error.statusCode = 400;
                 reject(error);
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            moduleController.deleteModuleVersion(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            moduleController.deleteModuleVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('deleteModuleVersion Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
     });
 
@@ -803,22 +860,24 @@ describe('Module Controller', function () {
             moduleServices.updateModuleVersionInformations.restore();
         });
 
-        it('should throw an error if no moduleVersionId specified', function (done) {
+        it('should call next(error) if no moduleVersionId specified', function (done) {
             const req = {
                 body: {
                     location: 'location',
                     informations: 'informations'
                 }
             }
-            moduleController.updateModuleVersionInformations(req, {}, () => { })
+            moduleController.updateModuleVersionInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('updateModuleVersionInformations error');
-                    done();
+                    assert.fail('updateModuleVersionInformations Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should return an object if update succeed', function (done) {
@@ -868,15 +927,17 @@ describe('Module Controller', function () {
             moduleServices.updateModuleVersionInformations.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            moduleController.updateModuleVersionInformations(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            moduleController.updateModuleVersionInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('updateModuleVersionInformations Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -892,15 +953,17 @@ describe('Module Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            moduleController.updateModuleVersionInformations(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            moduleController.updateModuleVersionInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('updateModuleVersionInformations Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
     });
@@ -914,20 +977,22 @@ describe('Module Controller', function () {
             moduleServices.getModuleVersion.restore();
         });
 
-        it('should throw an error if no moduleVersionId specified', function (done) {
+        it('should call next(error) if no moduleVersionId specified', function (done) {
             const req = {
                 body: {
                 }
             }
-            moduleController.getModuleVersion(req, {}, () => { })
+            moduleController.getModuleVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getModuleVersion Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should return an object if request succeed', function (done) {
@@ -968,15 +1033,17 @@ describe('Module Controller', function () {
             moduleServices.getModuleVersion.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            moduleController.getModuleVersion(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            moduleController.getModuleVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getModuleVersion Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -990,15 +1057,17 @@ describe('Module Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            moduleController.getModuleVersion(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            moduleController.getModuleVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getModuleVersion Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
     });
 
@@ -1011,58 +1080,64 @@ describe('Module Controller', function () {
             moduleServices.getModuleVersions.restore();
         });
 
-        it('should throw an error if no moduleId specified', function (done) {
+        it('should call next(error) if no moduleId specified', function (done) {
             const req = {
                 body: {
                     page: 1,
                     perPage: 20
                 }
             }
-            moduleController.getModuleVersions(req, {}, () => { })
+            moduleController.getModuleVersions(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getModuleVersions Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
-        it('should throw an error if no page specified', function (done) {
+        it('should call next(error) if no page specified', function (done) {
             const req = {
                 body: {
                     moduleId: 'toolId',
                     perPage: 20
                 }
             }
-            moduleController.getModuleVersions(req, {}, () => { })
+            moduleController.getModuleVersions(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getModuleVersions Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
-        it('should throw an error if no perPage specified', function (done) {
+        it('should call next(error) if no perPage specified', function (done) {
             const req = {
                 body: {
                     moduleId: 'toolId',
                     page: 1
                 }
             }
-            moduleController.getModuleVersions(req, {}, () => { })
+            moduleController.getModuleVersions(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getModuleVersions Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
 
@@ -1112,15 +1187,17 @@ describe('Module Controller', function () {
             moduleServices.getModuleVersions.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            moduleController.getModuleVersions(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            moduleController.getModuleVersions(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getModuleVersions Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -1136,15 +1213,17 @@ describe('Module Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            moduleController.getModuleVersions(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            moduleController.getModuleVersions(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getModuleVersions Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
     });

@@ -13,22 +13,25 @@ describe('Tool Middleware', function () {
             toolServices.isToolManager.restore();
         });
 
-        it('should throw an error if user is not toolManager', function (done) {
+        it('should call next(error) if user is not toolManager', function (done) {
             toolServices.isToolManager.returns(new Promise((resolve, reject) => {
                 resolve(false);
             }));
             const req = {
                 auth: { userId: 'abc' }
             }
-            isToolManager(req, {}, () => { assert.fail('Error : next called') })
-                .then(result => {
-                    assert.fail('Unknown Error');
+            isToolManager(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 401);
+                expect(err).to.have.property('message', 'Unauthorized');
+                done();
+            })
+                .then(response => {
+                    assert.fail('isToolManager Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('message', 'Unauthorized');
-                    expect(err).to.have.property('statusCode', 401);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next if user is ToolManager', function (done) {

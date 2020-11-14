@@ -5,7 +5,7 @@ exports.createTool = async (req, res, next) => {
     if (!name) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return toolServices.createTool({ name })
         .then(response => {
@@ -25,7 +25,7 @@ exports.deleteTool = async (req, res, next) => {
     if (!toolId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return toolServices.deleteTool({ toolId })
         .then(response => {
@@ -48,7 +48,7 @@ exports.updateToolInformations = async (req, res, next) => {
     if (!toolId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return toolServices.updateToolInformations({ toolId, vendor, informations })
         .then(response => {
@@ -68,7 +68,7 @@ exports.getTool = async (req, res, next) => {
     if (!toolId) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
 
     return toolServices.getTool({ toolId })
@@ -91,7 +91,7 @@ exports.getTools = async (req, res, next) => {
     if (!page || !perPage) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return toolServices.getTools({ page, perPage })
         .then(response => {
@@ -112,7 +112,7 @@ exports.createToolVersion = async (req, res, next) => {
     if (!toolId || !version) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return toolServices.createToolVersion({ toolId, version })
         .then(response => {
@@ -132,7 +132,7 @@ exports.deleteToolVersion = async (req, res, next) => {
     if (!toolVersionId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return toolServices.deleteToolVersion({ toolVersionId })
         .then(response => {
@@ -154,7 +154,7 @@ exports.updateToolVersionInformations = async (req, res, next) => {
     if (!toolVersionId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return toolServices.updateToolVersionInformations({ toolVersionId, location, informations })
         .then(response => {
@@ -174,7 +174,7 @@ exports.getToolVersion = async (req, res, next) => {
     if (!toolVersionId) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
 
     return toolServices.getToolVersion({ toolVersionId })
@@ -197,7 +197,7 @@ exports.getToolVersions = async (req, res, next) => {
     if (!toolId || !page || !perPage) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
 
     return toolServices.getToolVersions({ toolId, page, perPage })

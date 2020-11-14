@@ -5,7 +5,7 @@ exports.createEnvironment = async (req, res, next) => {
     if (!name) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return environmentServices.createEnvironment({ name })
         .then(response => {
@@ -25,7 +25,7 @@ exports.deleteEnvironment = async (req, res, next) => {
     if (!environmentId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return environmentServices.deleteEnvironment({ environmentId })
         .then(response => {
@@ -47,7 +47,7 @@ exports.addToolVersionToEnvironment = async (req, res, next) => {
     if(!environmentId || !toolVersionId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return environmentServices.addToolVersionToEnvironment({ environmentId, toolVersionId })
         .then(response => {
@@ -68,7 +68,7 @@ exports.removeToolVersionFromEnvironment = async (req, res, next) => {
     if(!environmentId || !toolVersionId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return environmentServices.removeToolVersionFromEnvironment({ environmentId, toolVersionId })
         .then(response => {
@@ -89,7 +89,7 @@ exports.updateEnvironmentInformations = async (req, res, next) => {
     if (!environmentId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return environmentServices.updateEnvironmentInformations({ environmentId, informations })
         .then(response => {
@@ -109,7 +109,7 @@ exports.getEnvironment = async (req, res, next) => {
     if (!environmentId) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
 
     return environmentServices.getEnvironment({ environmentId })
@@ -132,7 +132,7 @@ exports.getEnvironments = async (req, res, next) => {
     if (!page || !perPage) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return environmentServices.getEnvironments({ page, perPage })
         .then(response => {

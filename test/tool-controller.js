@@ -14,17 +14,20 @@ describe('Tool Controller', function () {
             toolServices.createTool.restore();
         });
 
-        it('should throw an Error if name is not specified', function (done) {
+        it('should call next(error) if name is not specified', function (done) {
             const req = {
                 body: {}
             };
-            toolController.createTool(req, {}, () => { })
+            toolController.createTool(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('createTool Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 })
         });
 
@@ -68,15 +71,17 @@ describe('Tool Controller', function () {
                 reject(new Error('tool Service error'));
             }));
 
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            toolController.createTool(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            toolController.createTool(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('createTool Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -89,15 +94,17 @@ describe('Tool Controller', function () {
                 error.statusCode = 400;
                 reject(error);
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            toolController.createTool(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            toolController.createTool(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('createTool Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
     });
 
@@ -110,19 +117,21 @@ describe('Tool Controller', function () {
             toolServices.deleteTool.restore();
         })
 
-        it('should throw an Error if toolId is not specified', function (done) {
+        it('should call next(error) if toolId is not specified', function (done) {
             const req = {
                 body: {}
             };
-            toolController.deleteTool(req, {}, () => { })
+            toolController.deleteTool(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('deleteTool Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 })
-
         });
 
         it('should return an object if tool deletion succeed', function (done) {
@@ -167,15 +176,17 @@ describe('Tool Controller', function () {
                 reject(new Error('tool Service error'));
             }));
 
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            toolController.deleteTool(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            toolController.deleteTool(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('deleteTool Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -188,15 +199,17 @@ describe('Tool Controller', function () {
                 error.statusCode = 400;
                 reject(error);
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            toolController.deleteTool(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            toolController.deleteTool(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('deleteTool Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
 
@@ -211,21 +224,23 @@ describe('Tool Controller', function () {
             toolServices.updateToolInformations.restore();
         });
 
-        it('should throw an error if no toolId specified', function (done) {
+        it('should call next(error) if no toolId specified', function (done) {
             const req = {
                 body: {
                     vendor: 'vendor',
                 }
             }
-            toolController.updateToolInformations(req, {}, () => { })
+            toolController.updateToolInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('deleteTool error');
-                    done();
+                    assert.fail('updateToolInformations Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should return an object if update succeed', function (done) {
@@ -269,15 +284,17 @@ describe('Tool Controller', function () {
             toolServices.updateToolInformations.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            toolController.updateToolInformations(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            toolController.updateToolInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('updateToolInformations Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -292,15 +309,17 @@ describe('Tool Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            toolController.updateToolInformations(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            toolController.updateToolInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('updateToolInformations Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
     });
@@ -314,20 +333,22 @@ describe('Tool Controller', function () {
             toolServices.getTool.restore();
         });
 
-        it('should throw an error if no toolId specified', function (done) {
+        it('should call next(error) if no toolId specified', function (done) {
             const req = {
                 body: {
                 }
             }
-            toolController.getTool(req, {}, () => { })
+            toolController.getTool(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getTool Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should return an object if request succeed', function (done) {
@@ -368,15 +389,17 @@ describe('Tool Controller', function () {
             toolServices.getTool.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            toolController.getTool(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            toolController.getTool(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getTool Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -390,15 +413,17 @@ describe('Tool Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            toolController.getTool(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            toolController.getTool(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getTool Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
     });
 
@@ -411,38 +436,42 @@ describe('Tool Controller', function () {
             toolServices.getTools.restore();
         });
 
-        it('should throw an error if no page specified', function (done) {
+        it('should call next(error) if no page specified', function (done) {
             const req = {
                 body: {
                     perPage: 20
                 }
             }
-            toolController.getTools(req, {}, () => { })
+            toolController.getTools(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getTools Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
-        it('should throw an error if no perPage specified', function (done) {
+        it('should call next(error) if no perPage specified', function (done) {
             const req = {
                 body: {
                     page: 1
                 }
             }
-            toolController.getTools(req, {}, () => { })
+            toolController.getTools(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getTools Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
 
@@ -490,15 +519,17 @@ describe('Tool Controller', function () {
             toolServices.getTools.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            toolController.getTools(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            toolController.getTools(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getTools Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -513,15 +544,17 @@ describe('Tool Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            toolController.getTools(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            toolController.getTools(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getTools Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
     });
@@ -535,31 +568,37 @@ describe('Tool Controller', function () {
             toolServices.createToolVersion.restore();
         });
 
-        it('should throw an Error if toolId is not specified', function (done) {
+        it('should call next(error) if toolId is not specified', function (done) {
             const req = {
                 body: { version: '1.0.0' }
             };
-            toolController.createToolVersion(req, {}, () => { })
+            toolController.createToolVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('createToolVersion Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 })
         });
 
-        it('should throw an Error if version is not specified', function (done) {
+        it('should call next(error) if version is not specified', function (done) {
             const req = {
                 body: { toolId: 'toolId' }
             };
-            toolController.createToolVersion(req, {}, () => { })
+            toolController.createToolVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('createToolVersion Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 })
         });
 
@@ -610,15 +649,17 @@ describe('Tool Controller', function () {
                 reject(new Error('tool Service error'));
             }));
 
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            toolController.createToolVersion(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            toolController.createToolVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('createToolVersion Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -634,15 +675,17 @@ describe('Tool Controller', function () {
                 error.statusCode = 400;
                 reject(error);
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            toolController.createToolVersion(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            toolController.createToolVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('createToolVersion Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
     });
@@ -656,19 +699,21 @@ describe('Tool Controller', function () {
             toolServices.deleteToolVersion.restore();
         })
 
-        it('should throw an Error if toolVersionId is not specified', function (done) {
+        it('should call next(error) if toolVersionId is not specified', function (done) {
             const req = {
                 body: {}
             };
-            toolController.deleteToolVersion(req, {}, () => { })
+            toolController.deleteToolVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('deleteTool Error');
+                    assert.fail('deleteToolVersion Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 })
-
         });
 
         it('should return an object if tool version deletion succeed', function (done) {
@@ -711,15 +756,17 @@ describe('Tool Controller', function () {
                 reject(new Error('tool Service error'));
             }));
 
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            toolController.deleteToolVersion(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            toolController.deleteToolVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('deleteToolVersion Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -732,15 +779,17 @@ describe('Tool Controller', function () {
                 error.statusCode = 400;
                 reject(error);
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            toolController.deleteToolVersion(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            toolController.deleteToolVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('deleteToolVersion Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
 
@@ -755,21 +804,23 @@ describe('Tool Controller', function () {
             toolServices.updateToolVersionInformations.restore();
         });
 
-        it('should throw an error if no toolVersionId specified', function (done) {
+        it('should call next(error) if no toolVersionId specified', function (done) {
             const req = {
                 body: {
                     location: 'location',
                 }
             }
-            toolController.updateToolVersionInformations(req, {}, () => { })
+            toolController.updateToolVersionInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('deleteTool error');
-                    done();
+                    assert.fail('updateToolVersionInformations Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should return an object if update succeed', function (done) {
@@ -813,15 +864,17 @@ describe('Tool Controller', function () {
             toolServices.updateToolVersionInformations.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            toolController.updateToolVersionInformations(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            toolController.updateToolVersionInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('updateToolVersionInformations Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -836,15 +889,17 @@ describe('Tool Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            toolController.updateToolVersionInformations(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            toolController.updateToolVersionInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('updateToolVersionInformations Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
     });
@@ -858,20 +913,22 @@ describe('Tool Controller', function () {
             toolServices.getToolVersion.restore();
         });
 
-        it('should throw an error if no toolVersionId specified', function (done) {
+        it('should call next(error) if no toolVersionId specified', function (done) {
             const req = {
                 body: {
                 }
             }
-            toolController.getToolVersion(req, {}, () => { })
+            toolController.getToolVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getToolVersion Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should return an object if request succeed', function (done) {
@@ -912,15 +969,17 @@ describe('Tool Controller', function () {
             toolServices.getToolVersion.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            toolController.getToolVersion(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            toolController.getToolVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getToolVersion Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -934,15 +993,17 @@ describe('Tool Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            toolController.getToolVersion(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            toolController.getToolVersion(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getToolVersion Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
     });
 
@@ -955,59 +1016,65 @@ describe('Tool Controller', function () {
             toolServices.getToolVersions.restore();
         });
 
-        it('should throw an error if no toolId specified', function (done) {
+        it('should call next(error) if no toolId specified', function (done) {
             const req = {
                 body: {
                     page: 1,
                     perPage: 20
                 }
             }
-            toolController.getToolVersions(req, {}, () => { })
+            toolController.getToolVersions(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getToolVersions Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
 
-        it('should throw an error if no page specified', function (done) {
+        it('should call next(error) if no page specified', function (done) {
             const req = {
                 body: {
                     toolId: 'toolId',
                     perPage: 20
                 }
             }
-            toolController.getToolVersions(req, {}, () => { })
+            toolController.getToolVersions(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getToolVersions Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
-        it('should throw an error if no perPage specified', function (done) {
+        it('should call next(error) if no perPage specified', function (done) {
             const req = {
                 body: {
                     toolId: 'toolId',
                     page: 1
                 }
             }
-            toolController.getToolVersions(req, {}, () => { })
+            toolController.getToolVersions(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getToolVersions Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
 
@@ -1057,15 +1124,17 @@ describe('Tool Controller', function () {
             toolServices.getToolVersions.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            toolController.getToolVersions(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            toolController.getToolVersions(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getToolVersions Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -1081,15 +1150,17 @@ describe('Tool Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            toolController.getToolVersions(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            toolController.getToolVersions(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getToolVersions Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
     });
 

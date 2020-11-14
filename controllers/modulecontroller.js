@@ -6,7 +6,7 @@ exports.createModule = async (req, res, next) => {
     if (!name || !toolId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return moduleServices.createModule({ name, toolId })
         .then(response => {
@@ -26,7 +26,7 @@ exports.deleteModule = async (req, res, next) => {
     if (!moduleId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return moduleServices.deleteModule({ moduleId })
         .then(response => {
@@ -48,7 +48,7 @@ exports.updateModuleInformations = async (req, res, next) => {
     if (!moduleId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return moduleServices.updateModuleInformations({ moduleId, vendor, informations })
         .then(response => {
@@ -68,7 +68,7 @@ exports.getModule = async (req, res, next) => {
     if (!moduleId) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
 
     return moduleServices.getModule({ moduleId })
@@ -92,7 +92,7 @@ exports.getModules = async (req, res, next) => {
     if (!toolId || !page || !perPage) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return moduleServices.getModules({ toolId, page, perPage })
         .then(response => {
@@ -114,7 +114,7 @@ exports.createModuleVersion = async (req, res, next) => {
     if (!moduleId || !version) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return moduleServices.createModuleVersion({ moduleId, version })
         .then(response => {
@@ -134,7 +134,7 @@ exports.deleteModuleVersion = async (req, res, next) => {
     if (!moduleVersionId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return moduleServices.deleteModuleVersion({ moduleVersionId })
         .then(response => {
@@ -156,7 +156,7 @@ exports.updateModuleVersionInformations = async (req, res, next) => {
     if (!moduleVersionId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return moduleServices.updateModuleVersionInformations({ moduleVersionId, location, informations })
         .then(response => {
@@ -176,7 +176,7 @@ exports.getModuleVersion = async (req, res, next) => {
     if (!moduleVersionId) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
 
     return moduleServices.getModuleVersion({ moduleVersionId })
@@ -199,7 +199,7 @@ exports.getModuleVersions = async (req, res, next) => {
     if (!moduleId || !page || !perPage) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return moduleServices.getModuleVersions({ moduleId, page, perPage })
         .then(response => {

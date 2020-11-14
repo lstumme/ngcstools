@@ -8,7 +8,7 @@ module.exports = async (req, res, next) => {
             if (!result) {
                 const error = new Error('Unauthorized');
                 error.statusCode = 401;
-                throw error;
+                next(error);
             }
             next();
         })

@@ -14,17 +14,21 @@ describe('Environment Controller', function () {
             environmentServices.createEnvironment.restore();
         });
 
-        it('should throw an Error if name is not specified', function (done) {
+        it('should call next(error) if name is not specified', function (done) {
             const req = {
                 body: {}
             };
-            environmentController.createEnvironment(req, {}, () => { })
+
+            environmentController.createEnvironment(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('createEnvironment Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 })
         });
 
@@ -68,15 +72,17 @@ describe('Environment Controller', function () {
                 reject(new Error('environment Service error'));
             }));
 
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            environmentController.createEnvironment(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            environmentController.createEnvironment(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('createEnvironment Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -89,15 +95,17 @@ describe('Environment Controller', function () {
                 error.statusCode = 400;
                 reject(error);
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            environmentController.createEnvironment(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            environmentController.createEnvironment(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('createEnvironment Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
     });
 
@@ -110,17 +118,20 @@ describe('Environment Controller', function () {
             environmentServices.deleteEnvironment.restore();
         })
 
-        it('should throw an Error if environmentId is not specified', function (done) {
+        it('should call next(err) if environmentId is not specified', function (done) {
             const req = {
                 body: {}
             };
-            environmentController.deleteEnvironment(req, {}, () => { })
+            environmentController.deleteEnvironment(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('deleteEnvironment Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 })
 
         });
@@ -167,15 +178,18 @@ describe('Environment Controller', function () {
                 reject(new Error('environment Service error'));
             }));
 
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            environmentController.deleteEnvironment(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            environmentController.deleteEnvironment(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('deleteEnvironment Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
+
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -188,15 +202,18 @@ describe('Environment Controller', function () {
                 error.statusCode = 400;
                 reject(error);
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            environmentController.deleteEnvironment(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            environmentController.deleteEnvironment(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('deleteEnvironment Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
+
         });
 
 
@@ -211,21 +228,24 @@ describe('Environment Controller', function () {
             environmentServices.updateEnvironmentInformations.restore();
         });
 
-        it('should throw an error if no environmentId specified', function (done) {
+        it('should call next(error) if no environmentId specified', function (done) {
             const req = {
                 body: {
                     informations: 'informations',
                 }
             }
-            environmentController.updateEnvironmentInformations(req, {}, () => { })
+            environmentController.updateEnvironmentInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('deleteEnvironment error');
-                    done();
+                    assert.fail('updateEnvironmentInformations Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
+
         });
 
         it('should return an object if update succeed', function (done) {
@@ -269,15 +289,17 @@ describe('Environment Controller', function () {
             environmentServices.updateEnvironmentInformations.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            environmentController.updateEnvironmentInformations(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            environmentController.updateEnvironmentInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('updateEnvironmentInformations Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -292,15 +314,17 @@ describe('Environment Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            environmentController.updateEnvironmentInformations(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            environmentController.updateEnvironmentInformations(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('updateEnvironmentInformations Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
     });
@@ -314,20 +338,22 @@ describe('Environment Controller', function () {
             environmentServices.getEnvironment.restore();
         });
 
-        it('should throw an error if no environmentId specified', function (done) {
+        it('should call next(error) if no environmentId specified', function (done) {
             const req = {
                 body: {
                 }
             }
-            environmentController.getEnvironment(req, {}, () => { })
+            environmentController.getEnvironment(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getEnvironment Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should return an object if request succeed', function (done) {
@@ -368,15 +394,17 @@ describe('Environment Controller', function () {
             environmentServices.getEnvironment.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            environmentController.getEnvironment(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            environmentController.getEnvironment(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getEnvironment Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -390,15 +418,17 @@ describe('Environment Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            environmentController.getEnvironment(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            environmentController.getEnvironment(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getEnvironment Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
     });
 
@@ -411,38 +441,42 @@ describe('Environment Controller', function () {
             environmentServices.getEnvironments.restore();
         });
 
-        it('should throw an error if no page specified', function (done) {
+        it('should call next(error) if no page specified', function (done) {
             const req = {
                 body: {
                     perPage: 20
                 }
             }
-            environmentController.getEnvironments(req, {}, () => { })
+            environmentController.getEnvironments(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getEnvironments Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
-        it('should throw an error if no perPage specified', function (done) {
+        it('should call next(error) if no perPage specified', function (done) {
             const req = {
                 body: {
                     page: 1
                 }
             }
-            environmentController.getEnvironments(req, {}, () => { })
+            environmentController.getEnvironments(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getEnvironments Error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
-                });
+                    assert.fail('Error thrown');
+                })
         });
 
 
@@ -490,15 +524,17 @@ describe('Environment Controller', function () {
             environmentServices.getEnvironments.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            environmentController.getEnvironments(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            environmentController.getEnvironments(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getEnvironments Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -513,15 +549,17 @@ describe('Environment Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            environmentController.getEnvironments(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            environmentController.getEnvironments(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getEnvironments Error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                })
         });
 
     });
