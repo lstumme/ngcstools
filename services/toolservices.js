@@ -1,4 +1,6 @@
-const { Group } = require('ngcsgroups');
+const { Role } = require('ngcsroles');
+const { UserServices } = require('ngcsusers');
+const { RoleServices } = require('ngcsroles');
 const Tool = require('../model/tool');
 const ToolVersion = require('../model/toolversion');
 
@@ -193,27 +195,26 @@ exports.getToolVersions = async ({ toolId, page, perPage }) => {
 };
 
 exports.isToolManager = async ({ userId }) => {
-
-    const findUserInSubgroups = async ({ userId, group }) => {
-        if (group.members.includes(userId)) {
-            return true;
-        } else {
-            for (let i = 0; i < group.groups.length; i++) {
-                const subGroupId = group.groups[i].toString();
-                const subGroup = await Group.findOne({ _id: subGroupId });
-                if (await findUserInSubgroups({ userId: userId, group: subGroup })) {
-                    return true;
-                }
+    return RoleServices.findRole({ name: 'toolsmanagers' })
+        .then(role => {
+            if (!role) {
+                console.log('role not found');
+                return false;
             }
-        }
-        return false;
-    };
-
-    return Group.findOne({ name: 'toolsManagers' })
-        .then(toolsManagersGroup => {
-            return findUserInSubgroups({ userId, group: toolsManagersGroup });
-        });
-
+            return UserServices.getUser({ userId: userId })
+                .then(user => {
+                    if (!user) {
+                        return false;
+                    }
+                    if (user.role === role.roleId) {
+                        return true;
+                    }
+                    return RoleServices.getRole({roleId: user.role})
+                        .then(userrole => {
+                            return userrole.subRoles.includes(role.roleId); 
+                        })
+                })
+        })
 };
 
 

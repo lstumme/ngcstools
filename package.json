@@ -22,10 +22,10 @@
   "homepage": "https://github.com/lstumme/ngcstools#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "mongodb": "^3.6.2",
-    "mongoose": "^5.10.12",
-    "ngcsgroups": "git+https://github.com/lstumme/ngcsgroups.git",
+    "mongodb": "^3.6.3",
+    "mongoose": "^5.10.14",
     "ngcshelpers": "git+https://github.com/lstumme/ngcshelpers.git",
+    "ngcsroles": "git+https://github.com/lstumme/ngcsroles.git",
     "ngcsusers": "git+https://github.com/lstumme/ngcsusers.git"
   },
   "devDependencies": {

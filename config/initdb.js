@@ -1,32 +1,36 @@
-const { Group } = require('ngcsgroups');
+const { Role, RoleServices } = require('ngcsroles');
 
+const adminRoleName = 'administrators'
+const toolsRoleName = 'toolsmanagers';
+const toolsRoleLabel = 'Gestionnaire';
 
 const initdb = async () => {
-    return Group.findOne({ name: 'administrators' })
-        .then(adminGroup => {
-            if (!adminGroup) {
-                const error = new Error('Administrators group not found');
+    return RoleServices.findRole({ name: adminRoleName })
+        .then(admins => {
+            if (!admins) {
+                const error = new Error(adminRoleName + ' role not found');
                 throw error;
             }
-            return Group.findOne({ name: 'toolsManagers' })
-                .then(toolsManager => {
-                    if (!toolsManager) {
-                        const toolsGroup = new Group({
-                            name: 'toolsManagers'
-                        })
-                        return toolsGroup.save();
+            return admins;
+        })
+        .then(admins => {
+            return RoleServices.findRole({ name: toolsRoleName })
+                .then(tools => {
+                    if (!tools) {
+                        return RoleServices.createRole({ name: toolsRoleName, label: toolsRoleLabel });
                     }
-                    return toolsManager;
+                    return tools;
                 })
-                .then(toolsGroup => {
-                    if (!toolsGroup.groups.includes(adminGroup._id.toString())) {
-                        toolsGroup.groups.push(adminGroup._id.toString());
-                        return toolsGroup.save();
+                .then(tools => {
+                    if (!admins.subRoles.includes(tools.roleId)) {
+                        return RoleServices.addSubRoleToRole({ parentRoleId: admins.roleId, subRoleId: tools.roleId })
+                            .then(result => {
+                                return tools;
+                            })
                     }
-                    return toolsGroup;
+                    return tools;
                 })
         })
 }
-
 
 module.exports = initdb;

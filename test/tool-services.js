@@ -2,7 +2,7 @@ const { expect, assert } = require('chai');
 const { ObjectId, ObjectID } = require('mongodb');
 const { dbHandler } = require('ngcstesthelpers');
 const { User } = require('ngcsusers');
-const { Group } = require('ngcsgroups');
+const { Role } = require('ngcsroles');
 const toolServices = require('../services/toolservices');
 const Tool = require('../model/tool');
 const ToolVersion = require('../model/toolversion');
@@ -718,6 +718,12 @@ describe('Tool Services', function () {
 
 
     describe("#isToolManager function", function () {
+        let simpleUser;
+        let managerUser;
+        let adminUser;
+        let userRole;
+        let managerRole;
+        let adminRole;
         before(async () => {
             await dbHandler.connect();
         });
@@ -731,86 +737,74 @@ describe('Tool Services', function () {
         });
 
         beforeEach(async () => {
-            const superUser = new User({
-                login: 'superUser',
+            userRole = new Role({
+                name: 'userRole',
+                label: 'userRole'
+            });
+            userRole = await userRole.save();
+
+            managerRole = new Role({
+                name: 'toolsmanagers',
+                label: 'toolsmanagers',
+                subRoles: [userRole._id]
+            });
+            managerRole = await managerRole.save();
+
+            adminRole = new Role({
+                name: 'adminRole',
+                label: 'adminRole',
+                subRoles: [userRole._id, managerRole._id]
+            });
+            adminRole = await adminRole.save();
+
+            simpleUser = new User({
+                login: 'simpleUser',
                 password: 'password',
-                email: 'superUser@user.com'
-            });
-            await superUser.save();
+                email: 'simpleUser@user.com',
+                role: userRole._id
+            })
+            simpleUser = await simpleUser.save();
 
-            const toolManagerUser = new User({
-                login: 'toolManagerUser',
+            managerUser = new User({
+                login: 'managerUser',
                 password: 'password',
-                email: 'toolManagerUser@user.com'
-            });
-            await toolManagerUser.save();
+                email: 'managerUser@user.com',
+                role: managerRole._id
+            })
+            managerUser = await managerUser.save();
 
-            const normalUser = new User({
-                login: 'normalUser',
+            adminUser = new User({
+                login: 'adminUser',
                 password: 'password',
-                email: 'normalUser@user.com'
-            });
-            await normalUser.save();
-
-            const superGroup = new Group({
-                name: 'superGroup',
-                members: [superUser._id]
-            });
-            await superGroup.save();
-
-            const toolsManagersGroup = new Group({
-                name: 'toolsManagers',
-                members: [toolManagerUser._id],
-                groups: [superGroup._id]
-            });
-            await toolsManagersGroup.save();
+                email: 'adminUser@user.com',
+                role: adminRole._id
+            })
+            adminUser = await adminUser.save();
         });
 
 
         it('should return true if user is member of toolManager group', function (done) {
-            User.findOne({ login: 'toolManagerUser' })
-                .then(user => {
-                    toolServices.isToolManager({ userId: user._id.toString() })
-                        .then(result => {
-                            expect(result).to.be.true;
-                            done();
-                        })
-                })
-                .catch(err => {
-                    console.log(err);
-                    assert.fail('Database Error');
+            toolServices.isToolManager({ userId: managerUser._id.toString() })
+                .then(result => {
+                    expect(result).to.be.true;
+                    done();
                 })
         });
 
-        it('should return true if user is member of a subgroup of toolManager', function (done) {
-            User.findOne({ login: 'superUser' })
-                .then(user => {
-                    toolServices.isToolManager({ userId: user._id.toString() })
-                        .then(result => {
-                            expect(result).to.be.true;
-                            done();
-                        })
-                })
-                .catch(err => {
-                    console.log(err);
-                    assert.fail('Database Error');
+        it('should return true if user is member of a superGroup of toolManager', function (done) {
+            toolServices.isToolManager({ userId: adminUser._id.toString() })
+                .then(result => {
+                    expect(result).to.be.true;
+                    done();
                 })
         });
 
-        it('should return false if user is not member of administrators group or from his subgroups', function (done) {
-            User.findOne({ login: 'normalUser' })
-                .then(user => {
-                    toolServices.isToolManager({ userId: user._id.toString() })
-                        .then(result => {
-                            expect(result).to.be.false;
-                            done();
-                        })
-                })
-                .catch(err => {
-                    console.log(err);
-                    assert.fail('Database Error');
+        it('should return false if user is not member of administrators group or from his supergroup', function (done) {
+            toolServices.isToolManager({ userId: simpleUser._id.toString() })
+                .then(result => {
+                    expect(result).to.be.false;
+                    done();
                 })
         });
     });
-
 });
