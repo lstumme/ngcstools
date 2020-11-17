@@ -1,7 +1,7 @@
 const { expect, assert } = require('chai');
 const { ObjectId } = require('mongodb');
 const { dbHandler } = require('ngcstesthelpers');
-const environmentServices = require('../services/environmentservices');
+const EnvironmentServices = require('../services/environmentservices');
 const Environment = require('../model/environment');
 
 describe('Environment Services', function () {
@@ -27,7 +27,7 @@ describe('Environment Services', function () {
 
         it('should throw an error if a environment with given name already exists', function (done) {
             const params = { name: 'environment1' };
-            environmentServices.createEnvironment(params)
+            EnvironmentServices.createEnvironment(params)
                 .then(result => {
                     assert.fail('Error');
                 })
@@ -40,7 +40,7 @@ describe('Environment Services', function () {
 
         it('should create a environment', function (done) {
             const params = { name: 'environment2' };
-            environmentServices.createEnvironment(params)
+            EnvironmentServices.createEnvironment(params)
                 .then(result => {
                     expect(result).to.have.property('environmentId');
                     Environment.findOne({ 'name': params.name })
@@ -83,7 +83,7 @@ describe('Environment Services', function () {
         it('should throw an error if environment to delete is not found', function (done) {
             const id = new ObjectId();
             const params = { environmentId: id.toString() };
-            environmentServices.deleteEnvironment(params)
+            EnvironmentServices.deleteEnvironment(params)
                 .then(result => {
                     assert.fail('Error');
                 })
@@ -98,7 +98,7 @@ describe('Environment Services', function () {
             Environment.findOne({ name: 'environment1' })
                 .then(environment => {
                     const params = { environmentId: environment._id.toString() };
-                    environmentServices.deleteEnvironment(params)
+                    EnvironmentServices.deleteEnvironment(params)
                         .then(result => {
                             Environment.countDocuments({}, function (err, count) {
                                 if (err) {
@@ -139,7 +139,7 @@ describe('Environment Services', function () {
         it('should throw an error if environment to update is not found', function (done) {
             const id = new ObjectId();
             const params = { environmentId: id.toString() };
-            environmentServices.updateEnvironmentInformations(params)
+            EnvironmentServices.updateEnvironmentInformations(params)
                 .then(result => {
                     assert.fail('Error');
                 })
@@ -154,7 +154,7 @@ describe('Environment Services', function () {
             Environment.findOne({ name: 'environment1' })
                 .then(environment => {
                     const params = { environmentId: environment._id.toString(), informations: 'Informations' };
-                    environmentServices.updateEnvironmentInformations(params)
+                    EnvironmentServices.updateEnvironmentInformations(params)
                         .then(result => {
                             Environment.findOne({ name: 'environment1' })
                                 .then(newEnvironment => {
@@ -173,7 +173,7 @@ describe('Environment Services', function () {
             Environment.findOne({ name: 'environment1' })
                 .then(environment => {
                     const params = { environmentId: environment._id.toString(), falseparam: 'falseparam' };
-                    environmentServices.updateEnvironmentInformations(params)
+                    EnvironmentServices.updateEnvironmentInformations(params)
                         .then(result => {
                             Environment.findOne({ name: 'environment1' })
                                 .then(newEnvironment => {
@@ -211,7 +211,7 @@ describe('Environment Services', function () {
         });
 
         it('should throw an error if Environment not found', function (done) {
-            environmentServices.getEnvironment({ environmentId: ObjectId().toString() })
+            EnvironmentServices.getEnvironment({ environmentId: ObjectId().toString() })
                 .then(result => {
                     assert.fail('Error');
                 })
@@ -223,10 +223,9 @@ describe('Environment Services', function () {
         });
 
         it('should return a environment object if environment found', function (done) {
-            environmentServices.getEnvironment({ environmentId: registeredEnvironment._id.toString() })
+            EnvironmentServices.getEnvironment({ environmentId: registeredEnvironment._id.toString() })
                 .then(result => {
-                    expect(result).to.have.property('_id');
-                    expect(result._id.toString()).to.equal(registeredEnvironment._id.toString());
+                    expect(result).to.have.property('environmentId', registeredEnvironment._id.toString());
                     expect(result).to.have.property('name', registeredEnvironment.name);
                     done();
                 })
@@ -261,7 +260,7 @@ describe('Environment Services', function () {
         });
 
         it('should throw an error if range out of bounds', function (done) {
-            environmentServices.getEnvironments({ page: 3, perPage: 10 })
+            EnvironmentServices.getEnvironments({ page: 3, perPage: 10 })
                 .then(result => {
                     assert.fail('Error');
                 })
@@ -274,7 +273,7 @@ describe('Environment Services', function () {
 
         it('should return an object contianing the required data and the number of pages', function (done) {
             const perPage = 10;
-            environmentServices.getEnvironments({ page: 1, perPage: perPage })
+            EnvironmentServices.getEnvironments({ page: 1, perPage: perPage })
                 .then(result => {
                     expect(result).to.have.property('pageCount', 2);
                     expect(result).to.have.property('environments').to.have.lengthOf(perPage);
@@ -292,7 +291,7 @@ describe('Environment Services', function () {
 
         it('should return an object contianing the required data and the number of pages 2', function (done) {
             const perPage = 7;
-            environmentServices.getEnvironments({ page: 1, perPage: perPage })
+            EnvironmentServices.getEnvironments({ page: 1, perPage: perPage })
                 .then(result => {
                     expect(result).to.have.property('pageCount', 3);
                     expect(result).to.have.property('environments').to.have.lengthOf(perPage);

@@ -42,7 +42,6 @@ describe('Tool Middleware', function () {
                 auth: { userId: 'abc' }
             }
             isToolManager(req, {}, () => {
-                console.log('next called');
                 done();
             })
                 .then(result => {

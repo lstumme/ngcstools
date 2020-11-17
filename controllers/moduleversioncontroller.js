@@ -1,15 +1,17 @@
-const ToolServices = require('../services/toolservices.js');
+const ModuleVersionServices = require('../services/moduleversionservices');
 
-exports.createTool = async (req, res, next) => {
-    const name = req.body.name;
-    if (!name) {
+
+exports.createModuleVersion = async (req, res, next) => {
+    const moduleId = req.body.moduleId;
+    const version = req.body.version;
+    if (!moduleId || !version) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
         next(error);
     }
-    return ToolServices.createTool({ name })
+    return ModuleVersionServices.createModuleVersion({ moduleId, version })
         .then(response => {
-            res.status(201).json({ message: 'Tool created', data: response });
+            res.status(201).json({ message: 'Module version created', data: response });
             return response;
         })
         .catch(err => {
@@ -20,16 +22,16 @@ exports.createTool = async (req, res, next) => {
         });
 };
 
-exports.deleteTool = async (req, res, next) => {
-    const toolId = req.body.toolId;
-    if (!toolId) {
+exports.deleteModuleVersion = async (req, res, next) => {
+    const moduleVersionId = req.body.moduleVersionId;
+    if (!moduleVersionId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
         next(error);
     }
-    return ToolServices.deleteTool({ toolId })
+    return ModuleVersionServices.deleteModuleVersion({ moduleVersionId })
         .then(response => {
-            res.status(201).json({ message: 'Tool deleted', data: response });
+            res.status(201).json({ message: 'Module version deleted', data: response });
             return response;
         })
         .catch(err => {
@@ -38,21 +40,20 @@ exports.deleteTool = async (req, res, next) => {
             }
             next(err);
         });
-
 };
 
-exports.updateToolInformations = async (req, res, next) => {
-    const toolId = req.body.toolId;
-    const vendor = req.body.vendor;
+exports.updateModuleVersionInformations = async (req, res, next) => {
+    const moduleVersionId = req.body.moduleVersionId;
+    const location = req.body.location;
     const informations = req.body.informations;
-    if (!toolId) {
+    if (!moduleVersionId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
         next(error);
     }
-    return ToolServices.updateToolInformations({ toolId, vendor, informations })
+    return ModuleVersionServices.updateModuleVersionInformations({ moduleVersionId, location, informations })
         .then(response => {
-            res.status(200).json({ message: 'Tool updated', data: response });
+            res.status(200).json({ message: 'Module version updated', data: response });
             return response;
         })
         .catch(err => {
@@ -63,15 +64,15 @@ exports.updateToolInformations = async (req, res, next) => {
         });
 };
 
-exports.getTool = async (req, res, next) => {
-    const toolId = req.body.toolId;
-    if (!toolId) {
+exports.getModuleVersion = async (req, res, next) => {
+    const moduleVersionId = req.body.moduleVersionId;
+    if (!moduleVersionId) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
         next(error);
     }
 
-    return ToolServices.getTool({ toolId })
+    return ModuleVersionServices.getModuleVersion({ moduleVersionId })
         .then(response => {
             res.status(200).json({ ...response });
             return response;
@@ -82,18 +83,18 @@ exports.getTool = async (req, res, next) => {
             }
             next(err);
         });
-
 };
 
-exports.getTools = async (req, res, next) => {
+exports.getModuleVersions = async (req, res, next) => {
     const page = req.body.page;
     const perPage = req.body.perPage;
-    if (!page || !perPage) {
+    const moduleId = req.body.moduleId;
+    if (!moduleId || !page || !perPage) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
         next(error);
     }
-    return ToolServices.getTools({ page, perPage })
+    return ModuleVersionServices.getModuleVersions({ moduleId, page, perPage })
         .then(response => {
             res.status(200).json(response);
             return response;
@@ -105,7 +106,6 @@ exports.getTools = async (req, res, next) => {
             next(err);
         });
 };
-
 
 
 

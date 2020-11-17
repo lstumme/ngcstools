@@ -1,11 +1,11 @@
-const { expect, assert } = require('chai');
+const { expect } = require('chai');
 const { dbHandler } = require('ngcstesthelpers');
-const environmentController = require('../controllers/environmentcontroller');
+const ToolVersionController = require('../controllers/toolversioncontroller');
 const ToolServices = require('../services/toolservices');
-const EnvironmentServices = require('../services/environmentservices');
+const ToolVersion = require('../model/toolversion');
 
-describe('Environment integration', function () {
-    describe('#createEnvironment', function (done) {
+describe('Tool version integration', function() {
+    describe('#createToolVersion', function (done) {
         let tool;
         before(async () => {
             await dbHandler.connect();
@@ -15,14 +15,19 @@ describe('Environment integration', function () {
             await dbHandler.closeDatabase();
         });
 
+        beforeEach(async () => {
+            tool = await ToolServices.createTool({name: 'tool1'});
+        });
+
         afterEach(async () => {
             await dbHandler.clearDatabase();
         });
 
-        it('should return an object if environment creation succeed', function (done) {
+        it('should return an object if tool version creation succeed', function (done) {
             const req = {
                 body: {
-                    name: 'environment1'
+                    toolId: tool.toolId,
+                    version: '1.0.0'
                 }
             }
             const res = {
@@ -38,23 +43,22 @@ describe('Environment integration', function () {
                 }
             };
 
-            environmentController.createEnvironment(req, res, () => { })
+            ToolVersionController.createToolVersion(req, res, () => { })
                 .then(result => {
                     expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('message', 'Environment created');
-                    expect(res.jsonObject.data).to.have.property('name', 'environment1');
-
-                    EnvironmentServices.findEnvironment({ name: 'environment1' })
-                        .then(environment => {
-                            expect(res.jsonObject.data).to.have.property('environmentId', environment.environmentId);
-                            done();
-                        });
+                    expect(res.jsonObject).to.have.property('message', 'Tool version created');
+                    expect(res.jsonObject.data).to.haveOwnProperty('toolVersionId');
+                    expect(res.jsonObject.data).to.have.property('toolId', tool.toolId);
+                    expect(res.jsonObject.data).to.have.property('version', '1.0.0');
+                    done();
                 })
         });
+
+
     });
 
-    describe('#deleteEnvironment', function (done) {
-        let environment;
+    describe('#deleteToolVersion', function (done) {
+        let toolVersion;
         before(async () => {
             await dbHandler.connect();
         });
@@ -64,23 +68,22 @@ describe('Environment integration', function () {
         });
 
         beforeEach(async () => {
-            const tool = await ToolServices.createTool({
-                name: 'tool1',
-            });
+            tool = await ToolServices.createTool({name: 'tool1'});
 
-            environment = await EnvironmentServices.createEnvironment({
-                name: 'environment1',
-                toolId: tool.toolId
-            })
+            toolVersion = new ToolVersion({
+                toolId: tool.toolId,
+                version: '1.0.0'
+            });
+            toolVersion = await toolVersion.save();
         });
 
         afterEach(async () => {
             await dbHandler.clearDatabase();
         });
 
-        it('should return an object if environment deletion succeed', function (done) {
+        it('should return an object if toolVersion deletion succeed', function (done) {
             const req = {
-                body: { environmentId: environment.environmentId }
+                body: { toolVersionId: toolVersion._id.toString() }
             }
             const res = {
                 statusCode: 0,
@@ -95,18 +98,19 @@ describe('Environment integration', function () {
                 }
             };
 
-            environmentController.deleteEnvironment(req, res, () => { })
+            ToolVersionController.deleteToolVersion(req, res, () => { })
                 .then(result => {
                     expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('message', 'Environment deleted');
-                    expect(res.jsonObject.data).to.have.property('environmentId', environment.environmentId);
+                    expect(res.jsonObject).to.have.property('message', 'Tool version deleted');
+                    expect(res.jsonObject.data).to.have.property('toolVersionId', toolVersion._id.toString());
                     done();
                 })
         });
     });
 
-    describe('#updateEnvironmentInformations', function (done) {
-        let environment;
+    describe('#updateToolVersionInformations', function (done) {
+        let toolVersion;
+        let tool;
         before(async () => {
             await dbHandler.connect();
         });
@@ -116,9 +120,13 @@ describe('Environment integration', function () {
         });
 
         beforeEach(async () => {
-            environment = await EnvironmentServices.createEnvironment({
-                name: 'environment1',
-            })
+            tool = await ToolServices.createTool({name: 'tool1'});
+
+            toolVersion = new ToolVersion({
+                toolId: tool.toolId,
+                version: '1.0.0'
+            });
+            toolVersion = await toolVersion.save();
         });
 
         afterEach(async () => {
@@ -128,7 +136,8 @@ describe('Environment integration', function () {
         it('should return an object if update succeed', function (done) {
             const req = {
                 body: {
-                    environmentId: environment.environmentId,
+                    toolVersionId: toolVersion._id.toString(),
+                    location: 'location',
                     informations: 'informations'
                 }
             }
@@ -145,18 +154,15 @@ describe('Environment integration', function () {
                 }
             };
 
-            environmentController.updateEnvironmentInformations(req, res, () => { }).then(result => {
+            ToolVersionController.updateToolVersionInformations(req, res, () => { }).then(result => {
                 expect(res).to.have.property('statusCode', 200);
-                expect(res.jsonObject).to.have.property('message', 'Environment updated');
-                expect(res.jsonObject.data).to.have.property('environmentId', environment.environmentId);
-                expect(res.jsonObject.data).to.have.property('name', environment.name);
+                expect(res.jsonObject).to.have.property('message', 'Tool version updated');
+                expect(res.jsonObject.data).to.have.property('toolVersionId', toolVersion._id.toString());
                 expect(res.jsonObject.data).to.have.property('informations', 'informations');
+                expect(res.jsonObject.data).to.have.property('location', 'location');
+                expect(res.jsonObject.data).to.have.property('toolId', tool.toolId);
                 done();
-            })
-            .catch(err=> {
-                console.log(err);
-            })
+            });
         });
-
     });
 });

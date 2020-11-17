@@ -1,12 +1,13 @@
 const { expect } = require('chai');
-const {dbHandler} = require('ngcstesthelpers');
-const moduleController = require('../controllers/modulecontroller');
+const { dbHandler } = require('ngcstesthelpers');
+const ModuleVersionController = require('../controllers/moduleversioncontroller');
 const ToolServices = require('../services/toolservices');
-const Module = require('../model/module');
+const ModuleServices = require('../services/moduleservices');
+const ModuleVersion = require('../model/moduleversion');
 
-describe('Module integration', function () {
-    describe('#createModule', function (done) {
-        let tool;
+describe('ModuleVersion integration', function() {
+    describe('#createModuleVersion', function (done) {
+        let module;
         before(async () => {
             await dbHandler.connect();
         });
@@ -17,17 +18,27 @@ describe('Module integration', function () {
 
         beforeEach(async () => {
             tool = await ToolServices.createTool({name: 'tool1'});
+            module = await ModuleServices.createModule({
+                name: 'module1',
+                toolId: tool.toolId
+            });
+
+            const moduleVersion = new ModuleVersion({
+                moduleId: module.moduleId,
+                version: '1.0.0'
+            });
+            await moduleVersion.save();
         });
 
         afterEach(async () => {
             await dbHandler.clearDatabase();
         });
 
-        it('should return an object if module creation succeed', function (done) {
+        it('should return an object if module version creation succeed', function (done) {
             const req = {
                 body: {
-                    name: 'module1',
-                    toolId: tool.toolId
+                    moduleId: module.moduleId,
+                    version: '2.0.0'
                 }
             }
             const res = {
@@ -43,24 +54,22 @@ describe('Module integration', function () {
                 }
             };
 
-            moduleController.createModule(req, res, () => { })
+            ModuleVersionController.createModuleVersion(req, res, () => { })
                 .then(result => {
                     expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('message', 'Module created');
-                    expect(res.jsonObject.data).to.have.property('name', 'module1');
-                    expect(res.jsonObject.data).to.have.property('toolId', tool.toolId)
-
-                    Module.findOne({ name: 'module1' })
-                        .then(module => {
-                            expect(res.jsonObject.data).to.have.property('moduleId', module._id.toString());
-                            done();
-                        });
+                    expect(res.jsonObject).to.have.property('message', 'Module version created');
+                    expect(res.jsonObject.data).to.haveOwnProperty('moduleVersionId');
+                    expect(res.jsonObject.data).to.have.property('moduleId', module.moduleId);
+                    expect(res.jsonObject.data).to.have.property('version', '2.0.0');
+                    done();
                 })
         });
+
+
     });
 
-    describe('#deleteModule', function (done) {
-        let module;
+    describe('#deleteModuleVersion', function (done) {
+        let moduleVersion;
         before(async () => {
             await dbHandler.connect();
         });
@@ -70,22 +79,26 @@ describe('Module integration', function () {
         });
 
         beforeEach(async () => {
-            const tool = await ToolServices.createTool({name: 'tool1'});
-
-            module = new Module({
+            tool = await ToolServices.createTool({name: 'tool1'});
+            module = await ModuleServices.createModule({
                 name: 'module1',
                 toolId: tool.toolId
-            })
-            module = await module.save()
+            });
+
+            moduleVersion = new ModuleVersion({
+                moduleId: module.moduleId,
+                version: '1.0.0'
+            });
+            moduleVersion = await moduleVersion.save();
         });
 
         afterEach(async () => {
             await dbHandler.clearDatabase();
         });
 
-        it('should return an object if module deletion succeed', function (done) {
+        it('should return an object if moduleVersion deletion succeed', function (done) {
             const req = {
-                body: { moduleId: module._id.toString() }
+                body: { moduleVersionId: moduleVersion._id.toString() }
             }
             const res = {
                 statusCode: 0,
@@ -100,19 +113,18 @@ describe('Module integration', function () {
                 }
             };
 
-            moduleController.deleteModule(req, res, () => { })
+            ModuleVersionController.deleteModuleVersion(req, res, () => { })
                 .then(result => {
                     expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('message', 'Module deleted');
-                    expect(res.jsonObject.data).to.have.property('moduleId', module._id.toString());
+                    expect(res.jsonObject).to.have.property('message', 'Module version deleted');
+                    expect(res.jsonObject.data).to.have.property('moduleVersionId', moduleVersion._id.toString());
                     done();
                 })
-
         });
-
     });
 
-    describe('#updateModuleInformation', function (done) {
+    describe('#updateModuleVersionInformations', function (done) {
+        let moduleVersion;
         let module;
         before(async () => {
             await dbHandler.connect();
@@ -123,13 +135,17 @@ describe('Module integration', function () {
         });
 
         beforeEach(async () => {
-            const tool = await ToolServices.createTool({name: 'tool1'});
-
-            module = new Module({
+            tool = await ToolServices.createTool({name: 'tool1'});
+            module = await ModuleServices.createModule({
                 name: 'module1',
                 toolId: tool.toolId
-            })
-            module = await module.save();
+            });
+
+            moduleVersion = new ModuleVersion({
+                moduleId: module.moduleId,
+                version: '1.0.0'
+            });
+            moduleVersion = await moduleVersion.save();
         });
 
         afterEach(async () => {
@@ -139,8 +155,8 @@ describe('Module integration', function () {
         it('should return an object if update succeed', function (done) {
             const req = {
                 body: {
-                    moduleId: module._id.toString(),
-                    vendor: 'vendor',
+                    moduleVersionId: moduleVersion._id.toString(),
+                    location: 'location',
                     informations: 'informations'
                 }
             }
@@ -157,16 +173,15 @@ describe('Module integration', function () {
                 }
             };
 
-            moduleController.updateModuleInformations(req, res, () => { }).then(result => {
+            ModuleVersionController.updateModuleVersionInformations(req, res, () => { }).then(result => {
                 expect(res).to.have.property('statusCode', 200);
-                expect(res.jsonObject).to.have.property('message', 'Module updated');
-                expect(res.jsonObject.data).to.have.property('moduleId', module._id.toString());
-                expect(res.jsonObject.data).to.have.property('vendor', 'vendor');
+                expect(res.jsonObject).to.have.property('message', 'Module version updated');
+                expect(res.jsonObject.data).to.have.property('moduleVersionId', moduleVersion._id.toString());
                 expect(res.jsonObject.data).to.have.property('informations', 'informations');
+                expect(res.jsonObject.data).to.have.property('location', 'location');
+                expect(res.jsonObject.data).to.have.property('moduleId', module.moduleId);
                 done();
             });
         });
-
     });
-
 });

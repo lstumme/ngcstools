@@ -1,6 +1,15 @@
 const Environment = require('../model/environment');
 const { id2Strings } = require('ngcshelpers');
 
+const convertEnvironment2Object = e => {
+    return {
+        environmentId: e._id.toString(),
+        name: e.name,
+        informations: e.informations,
+        toolVersionsId: e.toolVersionsId.map(v => { return v.toString() })
+    }
+}
+
 exports.createEnvironment = async ({ name }) => {
     return Environment.findOne({ name }).then(existingEnvironment => {
         if (existingEnvironment) {
@@ -12,10 +21,7 @@ exports.createEnvironment = async ({ name }) => {
         const environment = new Environment({ name });
         return environment.save()
             .then(newEnvironment => {
-                return {
-                    environmentId: newEnvironment._id.toString(),
-                    name: newEnvironment.name
-                };
+                return convertEnvironment2Object(newEnvironment);
             })
     });
 };
@@ -43,12 +49,7 @@ exports.updateEnvironmentInformations = ({ environmentId, informations }) => {
         const params = {}
         if (informations) environment.informations = informations;
         return environment.save().then(e => {
-            return {
-                environmentId: e._id.toString(),
-                name: e.name,
-                toolVersionsId: id2Strings(e.toolVersionId),
-                informations: e.informations
-            }
+            return convertEnvironment2Object(e);
         });
     });
 };
@@ -61,7 +62,7 @@ exports.getEnvironment = async ({ environmentId }) => {
                 error.statusCode = 404;
                 throw error;
             }
-            return environment;
+            return convertEnvironment2Object(environment);
         });
 };
 
@@ -77,12 +78,19 @@ exports.getEnvironments = async ({ page, perPage }) => {
             return Environment.find().skip((page - 1) * perPage).limit(perPage)
                 .then(result => {
                     return {
-                        environments: result,
+                        environments: result.map(e => { return convertEnvironment2Object(e) }),
                         pageCount: pageCount
                     };
 
                 })
         });
+};
+
+exports.findEnvironment = async ({ name: name }) => {
+    return Environment.findOne({ name: name })
+        .then(e => {
+            return e ? convertEnvironment2Object(e) : null;
+        })
 };
 
 
