@@ -1,34 +1,36 @@
 const { expect, assert } = require('chai');
 const { dbHandler } = require('ngcstesthelpers');
+
 const ToolController = require('../controllers/toolcontroller');
-const ToolServices = require('../services/toolservices');
 const Tool = require('../model/tool');
 
-describe('Tool integration', function () {
-    describe('#createTool', function (done) {
-        let tool;
-        before(async () => {
-            await dbHandler.connect();
-        });
+describe('Tool Integration', function () {
+describe('#createTool function', function () {
+		let defaultTool;
 
-        after(async () => {
-            await dbHandler.closeDatabase();
-        });
+		before(async () => {
+			await dbHandler.connect();
+			await Tool.createIndexes();
+		});
 
-        beforeEach(async () => {
-            tool = await ToolServices.createTool({ name: 'tool1' });
-        });
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
 
-        afterEach(async () => {
-            await dbHandler.clearDatabase();
-        });
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		beforeEach(async () => {
+			
+		});
+		
+		it('should return an object if Tool creation succeed', function (done) {
+			const req = {
+				body: {
+					name: 'defaultName', 
+				}
+			};
 
-        it('should return an object if tool creation succeed', function (done) {
-            const req = {
-                body: {
-                    name: 'tool2',
-                }
-            }
             const res = {
                 statusCode: 0,
                 jsonObject: {},
@@ -42,44 +44,53 @@ describe('Tool integration', function () {
                 }
             };
 
-            ToolController.createTool(req, res, () => { })
-                .then(result => {
-                    expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('message', 'Tool created');
-                    expect(res.jsonObject.data).to.have.property('name', 'tool2');
+			ToolController.createTool(req, res, () => { })
+				.then(() => {
+	                expect(res).to.have.property('statusCode', 201);
+	                expect(res.jsonObject).to.have.property('message', 'Tool created');
+	                expect(res.jsonObject.data).to.have.ownProperty('toolId');
+					expect(res.jsonObject.data).to.have.property('name', req.body.name); 
+					done();				
+				})
+				.catch(err => {
+					console.log(err);
+					assert.fail(err);
+					done();
+				});		
+		});
+	});
+	describe('#updateTool function', function () {
+	});
 
-                    Tool.findOne({ name: 'tool2' })
-                        .then(tool => {
-                            done();
-                        });
-                })
-                .catch(err => {
-                    console.log(err);
-                })
-        });
-    });
+	describe('#deleteTool function', function () {
+		let defaultTool;
 
-    describe('#deleteTool', function (done) {
-        let tool;
-        before(async () => {
-            await dbHandler.connect();
-        });
+		before(async () => {
+			await dbHandler.connect();
+			await Tool.createIndexes();
+		});
 
-        after(async () => {
-            await dbHandler.closeDatabase();
-        });
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
 
-        beforeEach(async () => {
-            tool = await ToolServices.createTool({ name: 'tool1' });
-        });
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		
+		beforeEach(async () => {
+			defaultTool = Tool({
+				name: 'defaultName',
+			});
+			defaultTool = await defaultTool.save();
+			
+		});
 
-        afterEach(async () => {
-            await dbHandler.clearDatabase();
-        });
-
-        it('should return an object if tool deletion succeed', function (done) {
+       it('should return a toolId if Tool deletion succeed', function (done) {
             const req = {
-                body: { toolId: tool.toolId }
+                body: {
+                    toolId: defaultTool._id.toString(),
+                }
             }
             const res = {
                 statusCode: 0,
@@ -95,43 +106,52 @@ describe('Tool integration', function () {
             };
 
             ToolController.deleteTool(req, res, () => { })
-                .then(result => {
-                    expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('message', 'Tool deleted');
-                    expect(res.jsonObject.data).to.have.property('toolId', tool.toolId);
-                    done();
-                })
-                .catch(err => {
-                    console.log(err);
-                    assert.fail(err.toString());
-                });
-        });
-    });
-
-    describe('#updateToolInformation', function (done) {
-        let tool;
-        before(async () => {
-            await dbHandler.connect();
+				.then(result => {
+	                expect(res).to.have.property('statusCode', 200);
+	                expect(res.jsonObject).to.have.property('message', 'Tool deleted');
+	                expect(res.jsonObject.data).to.have.property('toolId', req.body.toolId)
+	                done();
+            	})
+				.catch(err => {
+					console.log(err);
+					done();				
+				});
         });
 
-        after(async () => {
-            await dbHandler.closeDatabase();
-        });
 
-        beforeEach(async () => {
-            tool = await ToolServices.createTool({ name: 'tool1' });
-        });
+	});
 
-        afterEach(async () => {
-            await dbHandler.clearDatabase();
-        });
+	describe('#getTools function', function () {
+		let defaultTool;
 
-        it('should return an object if update succeed', function (done) {
+		before(async () => {
+			await dbHandler.connect();
+			await Tool.createIndexes();
+		});
+
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
+
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		
+		beforeEach(async () => {
+			
+			for (let i = 0; i < 20; i++) {
+				const tool = new Tool({
+					name: 'Name_' + i,
+				});
+				await tool.save();
+			}			
+		});
+
+        it('should return an array if request succeed', function (done) {
             const req = {
-                body: {
-                    toolId: tool.toolId,
-                    vendor: 'vendor',
-                    informations: 'informations'
+                query: {
+					page: '1',
+                    perPage: '10'
                 }
             }
             const res = {
@@ -147,17 +167,137 @@ describe('Tool integration', function () {
                 }
             };
 
-            ToolController.updateToolInformations(req, res, () => { }).then(result => {
-                expect(res).to.have.property('statusCode', 200);
-                expect(res.jsonObject).to.have.property('message', 'Tool updated');
-                expect(res.jsonObject.data).to.have.property('toolId', tool.toolId);
-                expect(res.jsonObject.data).to.have.property('vendor', 'vendor');
-                expect(res.jsonObject.data).to.have.property('informations', 'informations');
-                done();
-            })
-                .catch(err => {
-                    console.log(err);
-                })
+            ToolController.getTools(req, res, () => { })
+				.then(result => {
+	                expect(res).to.have.property('statusCode', 200);
+	                expect(res.jsonObject.tools).to.have.lengthOf(10);
+	                done();
+	            })
+				.catch(err => {
+					console.log(err);
+					assert.fail(err);
+					done();
+				});
         });
-    });
+	});
+
+	describe('#getTool function', function () {
+		let defaultTool;
+
+		before(async () => {
+			await dbHandler.connect();
+			await Tool.createIndexes();
+		});
+
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
+
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		
+		beforeEach(async () => {
+			defaultTool = Tool({
+				name: 'defaultName',
+			});
+			defaultTool = await defaultTool.save();
+			
+		});
+
+        it('should return an object if request succeed', function (done) {
+            const req = {
+                query: {
+                    toolId: defaultTool._id.toString(),
+                }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            ToolController.getTool(req, res, () => { })
+				.then(result => {
+	                expect(res).to.have.property('statusCode', 200);
+	                expect(res.jsonObject).to.have.property('toolId', defaultTool._id.toString());
+	                done();
+	            })
+				.catch(err => {
+					console.log(err);
+					assert.fail(err);
+					done();
+				});
+        });
+
+	});
+
+	describe('#findToolByName function', function () {
+		let defaultTool;
+
+		before(async () => {
+			await dbHandler.connect();
+			await Tool.createIndexes();
+		});
+
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
+
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		
+		beforeEach(async () => {
+			defaultTool = Tool({
+				name: 'defaultName',
+			});
+			defaultTool = await defaultTool.save();
+			
+		});
+
+        it('should return an object if request succeed', function (done) {
+            const req = {
+                query: {
+					name: 'defaultName',
+                }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            ToolController.findToolByName(req, res, () => { })
+				.then(result => {
+	                expect(res).to.have.property('statusCode', 200);
+	                expect(res.jsonObject).to.have.property('toolId', defaultTool._id.toString());
+					expect(res.jsonObject).to.have.property('name', 'defaultName');
+	                done();
+	            })
+				.catch(err => {
+					console.log(err);
+					assert.fail(err);
+					done();
+				});
+        });
+	});
+
+
+
+
 });

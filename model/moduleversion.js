@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 
 const ModuleVersionSchema = new mongoose.Schema({
-    moduleId: { type: mongoose.ObjectId, required: true, ref: 'Module' },
-    version: { type: String, required: true },
-    location: { type: String },
-    informations: { type: String },
-    creationDate: { type: Date, required: true, default: Date.now }
+	informations: { type: String},
+	version: { type: String, required: true},
+	location: { type: String},
+	creationDate: { type: Date},
+	module: { type: mongoose.ObjectId, ref: 'Module' , required: true },
 });
 
-module.exports = mongoose.model("ModuleVersion", ModuleVersionSchema);
+module.exports = mongoose.model('ModuleVersion', ModuleVersionSchema);
 

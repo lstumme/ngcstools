@@ -1,99 +1,95 @@
-const ModuleVersion = require('../model/moduleversion');
 const Module = require('../model/module');
+const Tool = require('../model/tool');
+const ModuleVersion = require('../model/moduleversion');
 
-const convertModuleVersion2Object = mv => {
-    return {
-        moduleVersionId: mv._id.toString(),
-        moduleId: mv.moduleId.toString(),
-        version: mv.version,
-        location: mv.location,
-        informations: mv.informations,
-        creationDate: mv.creationDate
-    }
-}
-
-exports.createModuleVersion = ({ moduleId, version }) => {
-    return ModuleVersion.findOne({ moduleId, version: version }).then(existingModuleVersion => {
-        if (existingModuleVersion) {
-            const error = new Error(`Module version ${version} already exists for this module`);
-            error.statusCode = 409;
-            throw error;
-        }
-        return Module.findOne({ _id: moduleId })
-            .then(existingModule => {
-                if (!existingModule) {
-                    const error = new Error('Specified module does not exist');
-                    error.statusCode = 409;
-                    throw error;
-                }
-                const moduleVersion = new ModuleVersion({ moduleId, version });
-                return moduleVersion.save()
-                    .then(newModuleVersion => {
-                        return convertModuleVersion2Object(newModuleVersion);
-                    })
-            })
-    });
+const convertModuleVersion2Object = m => {
+	return {
+		moduleVersionId: m._id.toString(),
+		informations: m.informations,
+		version: m.version,
+		location: m.location,
+		creationDate: m.creationDate,
+		module: m.module.toString(),
+	};
 };
 
-exports.deleteModuleVersion = ({ moduleVersionId }) => {
-    return ModuleVersion.findOne({ _id: moduleVersionId }).then(moduleVersion => {
+exports.createModuleVersion = async ({ module, version }) => {
+	const moduleVersion = new ModuleVersion({
+		version: version,
+		module: module,
+	});
+	return moduleVersion.save().then(m => {
+		return convertModuleVersion2Object(m);
+	});
+};
+
+exports.updateModuleVersion =  async ({ moduleVersionId, informations, location}) => {    
+	return ModuleVersion.findOne({ _id: moduleVersionId,  }).then(moduleVersion => {
         if (!moduleVersion) {
-            const error = new Error('Could not find module version.')
+            const error = new Error('Could not find moduleVersion.')
             error.statusCode = 404;
             throw error;
         }
-        return moduleVersion.remove()
-            .then(m => {
-                return { moduleVersionId: moduleVersion._id.toString() };
-            })
-    });
+
+		if (informations) moduleVersion.informations = informations;
+		if (location) moduleVersion.location = location;
+
+		return moduleVersion.save().then(m => {
+			return convertModuleVersion2Object(m);
+		});
+	});
 };
 
-exports.updateModuleVersionInformations = async ({ moduleVersionId, location, informations }) => {
-    return ModuleVersion.findOne({ _id: moduleVersionId }).then(moduleVersion => {
-        if (!moduleVersion) {
-            const error = new Error('Could not find module version.')
-            error.statusCode = 404;
-            throw error;
-        }
-        if (location) moduleVersion.location = location;
-        if (informations) moduleVersion.informations = informations
-        return moduleVersion.save()
-            .then(m => {
-                return convertModuleVersion2Object(m);
-            })
-    });
-};
 
-exports.getModuleVersion = async ({ moduleVersionId }) => {
-    return ModuleVersion.findOne({ _id: moduleVersionId })
-        .then(moduleVersion => {
-            if (!moduleVersion) {
-                const error = new Error('Module version not found.')
-                error.statusCode = 404;
-                throw error;
-            }
-            return convertModuleVersion2Object(moduleVersion);
-        });
+exports.deleteModuleVersion = async ({ moduleVersionId }) => {
+	return ModuleVersion.exists({ _id: moduleVersionId })
+		.then(result => {
+			if (!result) {
+				const error = new Error('ModuleVersion to delete was not found');
+				error.statusCode = 404;
+				throw error;
+			}
+			return result;
+		})
+		.then(() => {
+			return ModuleVersion.deleteOne({ _id: moduleVersionId })
+				.then(() => {
+					return { moduleVersionId };
+				})
+		});
 };
 
 exports.getModuleVersions = async ({ moduleId, page, perPage }) => {
-    return ModuleVersion.countDocuments({ moduleId: moduleId })
-        .then(count => {
-            const pageCount = Math.trunc(count / perPage) + (count % perPage > 0 ? 1 : 0);
-            if (count <= perPage * (page - 1) || (perPage * (page - 1) < 0)) {
-                const error = new Error('Pagination out of bounds.');
-                error.statusCode = 400;
-                throw error;
-            }
-            return ModuleVersion.find({ moduleId: moduleId }).skip((page - 1) * perPage).limit(perPage)
-                .then(result => {
-                    return {
-                        moduleVersions: result.map(mv => { return convertModuleVersion2Object(mv) }),
-                        pageCount: pageCount
-                    };
-                })
-        });
+	return ModuleVersion.countDocuments({ module: moduleId })
+		.then(count => {
+			const pageCount = Math.trunc(count / perPage) + (count % perPage > 0 ? 1 : 0);
+			if (count <= perPage * (page - 1) || (perPage * (page - 1) < 0)) {
+				const error = new Error('Pagination out of bounds.');
+				error.statusCode = 400;
+				throw error;
+			}
+			return ModuleVersion.find({ module: moduleId }).skip((page - 1) * perPage).limit(Number.parseInt(perPage))
+				.then(result => {
+					return {
+						moduleVersions: result.map(m => { return convertModuleVersion2Object(m); }),
+						pageCount: pageCount
+					};
+				})
+		});
 };
+
+exports.getModuleVersion = async ({ moduleVersionId }) => {
+	return ModuleVersion.findOne({ _id: moduleVersionId })
+		.then(moduleVersion => {
+			if (!moduleVersion) {
+				const error = new Error('ModuleVersion not found');
+				error.statusCode = 404;
+				throw error;
+			}
+			return convertModuleVersion2Object(moduleVersion);
+		})
+};
+
+
 
 

@@ -1,33 +1,112 @@
-const { expect } = require('chai');
-const {dbHandler} = require('ngcstesthelpers');
-const moduleController = require('../controllers/modulecontroller');
-const ToolServices = require('../services/toolservices');
+const { expect, assert } = require('chai');
+const { dbHandler } = require('ngcstesthelpers');
+const Tool = require('../model/tool');
+const ModuleController = require('../controllers/modulecontroller');
 const Module = require('../model/module');
 
-describe('Module integration', function () {
-    describe('#createModule', function (done) {
-        let tool;
-        before(async () => {
-            await dbHandler.connect();
-        });
+describe('Module Integration', function () {
+describe('#createModule function', function () {
+		let defaultModule;
+		let defaultTool;
 
-        after(async () => {
-            await dbHandler.closeDatabase();
-        });
+		before(async () => {
+			await dbHandler.connect();
+			await Module.createIndexes();
+		});
 
-        beforeEach(async () => {
-            tool = await ToolServices.createTool({name: 'tool1'});
-        });
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
 
-        afterEach(async () => {
-            await dbHandler.clearDatabase();
-        });
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		beforeEach(async () => {
+			defaultTool = Tool({
+				name: 'defaultName',
+			});
+			defaultTool = await defaultTool.save();
+			
+			
+			
+		});
+		
+		it('should return an object if Module creation succeed', function (done) {
+			const req = {
+				body: {
+					name: 'defaultName', 
+					tool: defaultTool._id.toString(), 
+				}
+			};
 
-        it('should return an object if module creation succeed', function (done) {
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+			ModuleController.createModule(req, res, () => { })
+				.then(() => {
+	                expect(res).to.have.property('statusCode', 201);
+	                expect(res.jsonObject).to.have.property('message', 'Module created');
+	                expect(res.jsonObject.data).to.have.ownProperty('moduleId');
+					expect(res.jsonObject.data).to.have.property('name', req.body.name); 
+					expect(res.jsonObject.data).to.have.property('tool', req.body.tool); 
+					done();				
+				})
+				.catch(err => {
+					console.log(err);
+					assert.fail(err);
+					done();
+				});		
+		});
+	});
+	describe('#updateModule function', function () {
+	});
+
+	describe('#deleteModule function', function () {
+		let defaultModule;
+		let defaultTool;
+
+		before(async () => {
+			await dbHandler.connect();
+			await Module.createIndexes();
+		});
+
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
+
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		
+		beforeEach(async () => {
+			defaultTool = Tool({
+				name: 'defaultName',
+			});
+			defaultTool = await defaultTool.save();
+			
+			
+			defaultModule = Module({
+				name: 'defaultName',
+				tool: defaultTool._id.toString(),
+			});
+			defaultModule = await defaultModule.save();
+			
+		});
+
+       it('should return a moduleId if Module deletion succeed', function (done) {
             const req = {
                 body: {
-                    name: 'module1',
-                    toolId: tool.toolId
+                    moduleId: defaultModule._id.toString(),
                 }
             }
             const res = {
@@ -43,49 +122,63 @@ describe('Module integration', function () {
                 }
             };
 
-            moduleController.createModule(req, res, () => { })
-                .then(result => {
-                    expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('message', 'Module created');
-                    expect(res.jsonObject.data).to.have.property('name', 'module1');
-                    expect(res.jsonObject.data).to.have.property('toolId', tool.toolId)
-
-                    Module.findOne({ name: 'module1' })
-                        .then(module => {
-                            expect(res.jsonObject.data).to.have.property('moduleId', module._id.toString());
-                            done();
-                        });
-                })
-        });
-    });
-
-    describe('#deleteModule', function (done) {
-        let module;
-        before(async () => {
-            await dbHandler.connect();
+            ModuleController.deleteModule(req, res, () => { })
+				.then(result => {
+	                expect(res).to.have.property('statusCode', 200);
+	                expect(res.jsonObject).to.have.property('message', 'Module deleted');
+	                expect(res.jsonObject.data).to.have.property('moduleId', req.body.moduleId)
+	                done();
+            	})
+				.catch(err => {
+					console.log(err);
+					done();				
+				});
         });
 
-        after(async () => {
-            await dbHandler.closeDatabase();
-        });
 
-        beforeEach(async () => {
-            const tool = await ToolServices.createTool({name: 'tool1'});
+	});
 
-            module = new Module({
-                name: 'module1',
-                toolId: tool.toolId
-            })
-            module = await module.save()
-        });
+	describe('#getModules function', function () {
+		let defaultModule;
+		let defaultTool;
 
-        afterEach(async () => {
-            await dbHandler.clearDatabase();
-        });
+		before(async () => {
+			await dbHandler.connect();
+			await Module.createIndexes();
+		});
 
-        it('should return an object if module deletion succeed', function (done) {
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
+
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		
+		beforeEach(async () => {
+			defaultTool = Tool({
+				name: 'defaultName',
+			});
+			defaultTool = await defaultTool.save();
+			
+			
+			
+			for (let i = 0; i < 20; i++) {
+				const module = new Module({
+					name: 'Name_' + i,
+					tool: defaultTool._id.toString(),
+				});
+				await module.save();
+			}			
+		});
+
+        it('should return an array if request succeed', function (done) {
             const req = {
-                body: { moduleId: module._id.toString() }
+                query: {
+					toolId: defaultTool._id.toString(),
+					page: '1',
+                    perPage: '10'
+                }
             }
             const res = {
                 statusCode: 0,
@@ -100,48 +193,56 @@ describe('Module integration', function () {
                 }
             };
 
-            moduleController.deleteModule(req, res, () => { })
-                .then(result => {
-                    expect(res).to.have.property('statusCode', 201);
-                    expect(res.jsonObject).to.have.property('message', 'Module deleted');
-                    expect(res.jsonObject.data).to.have.property('moduleId', module._id.toString());
-                    done();
-                })
-
+            ModuleController.getModules(req, res, () => { })
+				.then(result => {
+	                expect(res).to.have.property('statusCode', 200);
+	                expect(res.jsonObject.modules).to.have.lengthOf(10);
+	                done();
+	            })
+				.catch(err => {
+					console.log(err);
+					assert.fail(err);
+					done();
+				});
         });
+	});
 
-    });
+	describe('#getModule function', function () {
+		let defaultModule;
+		let defaultTool;
 
-    describe('#updateModuleInformation', function (done) {
-        let module;
-        before(async () => {
-            await dbHandler.connect();
-        });
+		before(async () => {
+			await dbHandler.connect();
+			await Module.createIndexes();
+		});
 
-        after(async () => {
-            await dbHandler.closeDatabase();
-        });
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
 
-        beforeEach(async () => {
-            const tool = await ToolServices.createTool({name: 'tool1'});
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		
+		beforeEach(async () => {
+			defaultTool = Tool({
+				name: 'defaultName',
+			});
+			defaultTool = await defaultTool.save();
+			
+			
+			defaultModule = Module({
+				name: 'defaultName',
+				tool: defaultTool._id.toString(),
+			});
+			defaultModule = await defaultModule.save();
+			
+		});
 
-            module = new Module({
-                name: 'module1',
-                toolId: tool.toolId
-            })
-            module = await module.save();
-        });
-
-        afterEach(async () => {
-            await dbHandler.clearDatabase();
-        });
-
-        it('should return an object if update succeed', function (done) {
+        it('should return an object if request succeed', function (done) {
             const req = {
-                body: {
-                    moduleId: module._id.toString(),
-                    vendor: 'vendor',
-                    informations: 'informations'
+                query: {
+                    moduleId: defaultModule._id.toString(),
                 }
             }
             const res = {
@@ -157,16 +258,88 @@ describe('Module integration', function () {
                 }
             };
 
-            moduleController.updateModuleInformations(req, res, () => { }).then(result => {
-                expect(res).to.have.property('statusCode', 200);
-                expect(res.jsonObject).to.have.property('message', 'Module updated');
-                expect(res.jsonObject.data).to.have.property('moduleId', module._id.toString());
-                expect(res.jsonObject.data).to.have.property('vendor', 'vendor');
-                expect(res.jsonObject.data).to.have.property('informations', 'informations');
-                done();
-            });
+            ModuleController.getModule(req, res, () => { })
+				.then(result => {
+	                expect(res).to.have.property('statusCode', 200);
+	                expect(res.jsonObject).to.have.property('moduleId', defaultModule._id.toString());
+	                done();
+	            })
+				.catch(err => {
+					console.log(err);
+					assert.fail(err);
+					done();
+				});
         });
 
-    });
+	});
+
+	describe('#findModuleByName function', function () {
+		let defaultModule;
+		let defaultTool;
+
+		before(async () => {
+			await dbHandler.connect();
+			await Module.createIndexes();
+		});
+
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
+
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		
+		beforeEach(async () => {
+			defaultTool = Tool({
+				name: 'defaultName',
+			});
+			defaultTool = await defaultTool.save();
+			
+			
+			defaultModule = Module({
+				name: 'defaultName',
+				tool: defaultTool._id.toString(),
+			});
+			defaultModule = await defaultModule.save();
+			
+		});
+
+        it('should return an object if request succeed', function (done) {
+            const req = {
+                query: {
+					name: 'defaultName',
+                }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            ModuleController.findModuleByName(req, res, () => { })
+				.then(result => {
+	                expect(res).to.have.property('statusCode', 200);
+	                expect(res.jsonObject).to.have.property('moduleId', defaultModule._id.toString());
+					expect(res.jsonObject).to.have.property('name', 'defaultName');
+	                done();
+	            })
+				.catch(err => {
+					console.log(err);
+					assert.fail(err);
+					done();
+				});
+        });
+	});
+
+
+
 
 });
