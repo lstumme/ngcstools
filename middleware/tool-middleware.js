@@ -1,6 +1,6 @@
 const { expect, assert } = require('chai');
 const sinon = require('sinon');
-const isToolManager = require('./is-toolmanager');
+const isToolManager = require('../../ngcsserver/middleware/is-toolmanager');
 const toolServices = require('../services/toolservices');
 
 describe('Tool Middleware', function () {
